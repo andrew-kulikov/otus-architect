@@ -8,7 +8,7 @@ namespace SocialNetwork.Data.Migrations
         public override void Up()
         {
             Create.Table("User")
-                .WithColumn("Id").AsGuid().PrimaryKey().Identity()
+                .WithColumn("Id").AsInt64().PrimaryKey().Identity()
                 .WithColumn("Username").AsString().Unique().NotNullable()
                 .WithColumn("Email").AsString().Unique().NotNullable()
                 .WithColumn("PasswordHash").AsString().NotNullable()
