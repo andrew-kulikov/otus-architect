@@ -8,11 +8,12 @@
   <ItemGroup>
     <PackageReference Include="FluentMigrator.Runner" Version="3.2.15" />
     <PackageReference Include="FluentMigrator.Runner.MySql" Version="3.2.15" />
-    <PackageReference Include="MySql.Data" Version="8.0.23" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\SocialNetwork.Core\SocialNetwork.Core.csproj" />
     <ProjectReference Include="..\SocialNetwork.Data.Migrations\SocialNetwork.Data.Migrations.csproj" />
+    <ProjectReference Include="..\SocialNetwork.Infrastructure\SocialNetwork.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

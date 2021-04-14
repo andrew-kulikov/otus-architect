@@ -4,7 +4,11 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using SocialNetwork.Core.Repositories;
 using SocialNetwork.Data.Migrations;
+using SocialNetwork.Infrastructure.Configuration;
+using SocialNetwork.Infrastructure.MySQL;
+using SocialNetwork.Infrastructure.Repositories;
 
 namespace SocialNetwork.Web
 {
@@ -26,6 +30,12 @@ namespace SocialNetwork.Web
                     .AddMySql5()
                     .WithGlobalConnectionString(Configuration.GetConnectionString("SocialNetworkDb"))
                     .ScanIn(typeof(AddUserTable).Assembly).For.Migrations());
+
+            services.AddOptions<ConnectionStrings>()
+                .Bind(Configuration.GetSection("ConnectionStrings"));
+
+            services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<SqlConnectionFactory>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
