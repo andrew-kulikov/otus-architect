@@ -1,4 +1,6 @@
-﻿@{
+﻿@model SocialNetwork.Web.ViewModels.RegistrationViewModel
+
+@{
     Layout = "../_Layout";
     ViewBag.Title = "SocialNetwork - Registration";
 }
@@ -6,7 +8,27 @@
 <div>
     <h1>Registration</h1>
 
-    <div>
-        Don't have account yet? - <a asp-controller="Registration">Register</a>
-    </div>
+    <form asp-controller="Registration" asp-action="Register" method="post">
+        <div>
+            <label asp-for="Email">Email</label>
+            <input type="text" asp-for="Email"/>
+        </div>
+        
+        <div>
+            <label asp-for="Username">Username</label>
+            <input type="text" asp-for="Username"/>
+        </div>
+        
+        <div>
+            <label asp-for="Password">Password</label>
+            <input type="text" asp-for="Password"/>
+        </div>
+        
+        <div>
+            <label asp-for="ConfirmPassword">ConfirmPassword</label>
+            <input type="text" asp-for="ConfirmPassword"/>
+        </div>
+     
+        <button type="submit">Submit</button>
+    </form>
 </div>

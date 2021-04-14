@@ -20,7 +20,7 @@ namespace SocialNetwork.Infrastructure.Repositories
 
         public async Task<ICollection<User>> GetAllUsersAsync()
         {
-            const string sql = @"select * from Users;";
+            const string sql = @"select * from User;";
 
             using (var connection = _connectionFactory.CreateConnection())
             {
@@ -34,7 +34,7 @@ namespace SocialNetwork.Infrastructure.Repositories
 
         public async Task AddUserAsync(User user)
         {
-            const string sql = @"insert into Users (Username, Email, PasswordHash, RegisteredAt) values (@Username, @Email, @PasswordHash, @RegisteredAt);";
+            const string sql = @"insert into User (Username, Email, PasswordHash, RegisteredAt) values (@Username, @Email, @PasswordHash, @RegisteredAt);";
 
             using (var connection = _connectionFactory.CreateConnection())
             {
