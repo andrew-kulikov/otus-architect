@@ -24,8 +24,7 @@ namespace SocialNetwork.Web
                 .ConfigureRunner(rb => rb
                     .AddMySql5()
                     .WithGlobalConnectionString(Configuration.GetConnectionString("SocialNetworkDb"))
-                    .ScanIn(typeof(AddUserTable).Assembly).For.Migrations())
-                .AddLogging(lb => lb.AddFluentMigratorConsole());
+                    .ScanIn(typeof(AddUserTable).Assembly).For.Migrations());
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
