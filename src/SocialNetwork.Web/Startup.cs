@@ -1,7 +1,6 @@
 using FluentMigrator.Runner;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -20,6 +19,8 @@ namespace SocialNetwork.Web
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddControllersWithViews();
+
             services.AddFluentMigratorCore()
                 .ConfigureRunner(rb => rb
                     .AddMySql5()
@@ -35,7 +36,9 @@ namespace SocialNetwork.Web
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapGet("/", async context => { await context.Response.WriteAsync("Hello World!"); });
+                endpoints.MapControllers();
+
+                endpoints.MapDefaultControllerRoute();
             });
         }
     }
