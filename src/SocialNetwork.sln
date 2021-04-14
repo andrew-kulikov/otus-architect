@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SocialNetwork.Web", "Social
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SocialNetwork.Data.Migrations", "SocialNetwork.Data.Migrations\SocialNetwork.Data.Migrations.csproj", "{6BFA03FC-AC6C-4AF2-BFAF-A6B1685BEEC4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SocialNetwork.Core", "SocialNetwork.Core\SocialNetwork.Core.csproj", "{3D4BF53B-4407-4F43-B623-C12A3D7616DF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{6BFA03FC-AC6C-4AF2-BFAF-A6B1685BEEC4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6BFA03FC-AC6C-4AF2-BFAF-A6B1685BEEC4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6BFA03FC-AC6C-4AF2-BFAF-A6B1685BEEC4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3D4BF53B-4407-4F43-B623-C12A3D7616DF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3D4BF53B-4407-4F43-B623-C12A3D7616DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3D4BF53B-4407-4F43-B623-C12A3D7616DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3D4BF53B-4407-4F43-B623-C12A3D7616DF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
