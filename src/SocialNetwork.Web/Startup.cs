@@ -44,6 +44,7 @@ namespace SocialNetwork.Web
             services.AddScoped<ISignInManager, SignInManager>();
             services.AddScoped<IAuthenticationService, AuthenticationService>();
             services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IUserProfileRepository, UserProfileRepository>();
             services.AddScoped<SqlConnectionFactory>();
         }
 
