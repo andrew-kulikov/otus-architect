@@ -1,8 +1,13 @@
-﻿@{
+﻿@model SocialNetwork.Web.ViewModels.CreateProfileViewModel
+
+@{
     Layout = "../_Layout";
     ViewBag.Title = "SocialNetwork - Create Profile";
 }
 
 <div>
     <h1>Create profile</h1>
+    <div>
+        <p>Hello, @Model.UserName!</p>
+    </div>
 </div>

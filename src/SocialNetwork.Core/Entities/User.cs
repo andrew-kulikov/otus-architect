@@ -11,5 +11,7 @@ namespace SocialNetwork.Core.Entities
         public string Email { get; set; }
         public string PasswordHash { get; set; }
         public DateTime RegisteredAt { get; set; }
+
+        public UserProfile Profile { get; set; }
     }
 }

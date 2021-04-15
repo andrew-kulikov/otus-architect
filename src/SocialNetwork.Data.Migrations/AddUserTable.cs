@@ -12,8 +12,7 @@ namespace SocialNetwork.Data.Migrations
                 .WithColumn("Username").AsString().Unique().NotNullable()
                 .WithColumn("Email").AsString().Unique().NotNullable()
                 .WithColumn("PasswordHash").AsString().NotNullable()
-                .WithColumn("RegisteredAt").AsDateTime().NotNullable()
-                .WithColumn("RegistrationCompleted").AsBoolean().NotNullable().WithDefaultValue(false);
+                .WithColumn("RegisteredAt").AsDateTime().NotNullable();
         }
 
         public override void Down()
