@@ -1,19 +1,18 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using SocialNetwork.Core.Entities;
-using SocialNetwork.Core.Repositories;
+using SocialNetwork.Core.Services;
 using SocialNetwork.Web.ViewModels;
 
 namespace SocialNetwork.Web.Controllers
 {
     public class RegistrationController : Controller
     {
-        private readonly IUserRepository _userRepository;
+        private readonly IAuthenticationService _authenticationService;
 
-        public RegistrationController(IUserRepository userRepository)
+        public RegistrationController(IAuthenticationService authenticationService)
         {
-            _userRepository = userRepository;
+            _authenticationService = authenticationService;
         }
 
         public IActionResult Index()
@@ -28,12 +27,11 @@ namespace SocialNetwork.Web.Controllers
             var user = new User
             {
                 Email = model.Email,
-                Username = model.Username,
-                RegisteredAt = DateTime.UtcNow,
-                PasswordHash = model.Password
+                Username = model.Username
             };
 
-            await _userRepository.AddUserAsync(user);
+            await _authenticationService.RegisterAsync(user, model.Password);
+            await _authenticationService.LoginAsync(model.Username, model.Password);
 
             return View("CreateProfile");
         }

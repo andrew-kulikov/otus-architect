@@ -18,6 +18,20 @@ namespace SocialNetwork.Infrastructure.Repositories
             _connectionFactory = connectionFactory;
         }
 
+        public async Task<User> GetUserAsync(string username)
+        {
+            const string sql = @"select * from User where Username = @Username;";
+
+            using (var connection = _connectionFactory.CreateConnection())
+            {
+                connection.Open();
+
+                var users = await connection.QueryAsync<User>(sql, new { Username = username });
+
+                return users.First();
+            }
+        }
+
         public async Task<ICollection<User>> GetAllUsersAsync()
         {
             const string sql = @"select * from User;";
