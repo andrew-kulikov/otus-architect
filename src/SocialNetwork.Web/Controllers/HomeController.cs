@@ -6,7 +6,8 @@ namespace SocialNetwork.Web.Controllers
     {
         public IActionResult Index()
         {
-            if (User.Identity.IsAuthenticated)
+            if (User.Identity.IsAuthenticated) return RedirectToAction("Index", "Profiles");
+
             return View();
         }
     }
