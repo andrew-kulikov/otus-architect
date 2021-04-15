@@ -8,6 +8,18 @@
 
 <div>
     <h1>Login</h1>
+    
+    <form asp-controller="Login" asp-action="Login" method="post">
+        <div>
+            <label asp-for="Username">Username</label>
+            <input type="text" asp-for="Username"/>
+        </div>
+        <div>
+            <label asp-for="Password">Password</label>
+            <input type="text" asp-for="Password"/>
+        </div>
+        <button type="submit">Login</button>
+    </form>
 
     <div>
         Don't have account yet? - <a asp-controller="Registration">Register</a>

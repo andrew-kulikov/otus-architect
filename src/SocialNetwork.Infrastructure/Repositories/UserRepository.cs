@@ -30,11 +30,14 @@ namespace SocialNetwork.Infrastructure.Repositories
             {
                 connection.Open();
 
-                var users = await connection.QueryAsync<User, UserProfile, User>(sql, (user, profile) =>
-                {
-                    user.Profile = profile;
-                    return user;
-                }, new { Username = username });
+                var users = await connection.QueryAsync<User, UserProfile, User>(sql,
+                    (user, profile) =>
+                    {
+                        user.Profile = profile;
+                        return user;
+                    },
+                    new {Username = username},
+                    splitOn: "UserId");
 
                 return users.First();
             }

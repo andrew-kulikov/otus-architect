@@ -24,16 +24,16 @@ namespace SocialNetwork.Web.Controllers
         public async Task<IActionResult> Register(RegistrationViewModel model)
         {
             // TODO: Add validation
-            var user = new User
+            var createdUser = new User
             {
                 Email = model.Email,
                 Username = model.Username
             };
 
-            await _authenticationService.RegisterAsync(user, model.Password);
-            await _authenticationService.LoginAsync(model.Username, model.Password);
+            await _authenticationService.RegisterAsync(createdUser, model.Password);
+            var user = await _authenticationService.LoginAsync(model.Username, model.Password);
 
-            return View("CreateProfile");
+            return View("CreateProfile", new CreateProfileViewModel {UserName = user.Username});
         }
     }
 }
