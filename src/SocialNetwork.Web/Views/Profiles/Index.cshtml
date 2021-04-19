@@ -5,18 +5,17 @@
     ViewBag.Title = "Profiles";
 }
 
+
 <div>
-    <h1>Profiles</h1>
-    
-    <div>
-        @foreach (var profile in Model)
-        {
-            <p><b>FirstName:</b> @profile.FirstName</p>
-            <p><b>LastName:</b> @profile.LastName</p>
-            <p><b>Age:</b> @profile.Age</p>
-            <p><b>City:</b> @profile.City</p>
-            <p><b>Interests:</b> @profile.Interests</p>
-            <br/>
-        }
-    </div>
+    @foreach (var profile in Model)
+    {
+        <div class="card" style="width: 18rem;">
+            <div class="card-body">
+                <h5 class="card-title">@profile.FirstName @profile.LastName</h5>
+                <h6 class="card-subtitle mb-2 text-muted">City: @profile.City, Age: @profile.Age</h6>
+                <p class="card-text">@profile.Interests</p>
+                <a href="#" class="card-link">Go to profile</a>
+            </div>
+        </div>
+    }
 </div>
