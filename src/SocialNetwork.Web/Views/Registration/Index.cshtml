@@ -5,30 +5,30 @@
     ViewBag.Title = "SocialNetwork - Registration";
 }
 
-<div>
-    <h1>Registration</h1>
+<div class="text-center">
+    <h1 class="h3 mb-3 font-weight-normal">Registration</h1>
 
-    <form asp-controller="Registration" asp-action="Register" method="post">
+    <form class="form-signin" asp-controller="Registration" asp-action="Register" method="post">
         <div>
-            <label asp-for="Email">Email</label>
-            <input type="text" asp-for="Email"/>
+            <label class="sr-only" asp-for="Email">Email</label>
+            <input class="form-control" type="email" asp-for="Email" placeholder="Email" />
         </div>
         
         <div>
-            <label asp-for="Username">Username</label>
-            <input type="text" asp-for="Username"/>
+            <label class="sr-only" asp-for="Username">Username</label>
+            <input class="form-control" type="text" asp-for="Username" placeholder="Username" />
         </div>
         
         <div>
-            <label asp-for="Password">Password</label>
-            <input type="text" asp-for="Password"/>
+            <label class="sr-only" asp-for="Password">Password</label>
+            <input class="form-control" type="password" asp-for="Password" placeholder="Password"/>
         </div>
         
         <div>
-            <label asp-for="ConfirmPassword">ConfirmPassword</label>
-            <input type="text" asp-for="ConfirmPassword"/>
+            <label class="sr-only" asp-for="ConfirmPassword">ConfirmPassword</label>
+            <input class="form-control" type="password" asp-for="ConfirmPassword" placeholder="Confirm Password"/>
         </div>
      
-        <button type="submit">Submit</button>
+        <button class="btn btn-lg btn-primary btn-block login-button" type="submit">Sign Up</button>
     </form>
 </div>
