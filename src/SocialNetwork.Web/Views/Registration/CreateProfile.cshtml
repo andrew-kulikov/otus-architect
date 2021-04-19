@@ -5,33 +5,33 @@
     ViewBag.Title = "SocialNetwork - Create Profile";
 }
 
-<div>
-    <h1>Create profile</h1>
+<div class="text-center">
+    <h1 class="h3 mb-3 font-weight-normal">Create profile</h1>
     <div>
         <p>Hello, @Model.UserName!</p>
         
-        <form asp-controller="Registration" asp-action="CreateProfile" method="post">
+        <form class="form-signin" asp-controller="Registration" asp-action="CreateProfile" method="post">
             <div>
-                <label asp-for="FirstName">FirstName</label>
-                <input type="text" asp-for="FirstName"/>
+                <label class="sr-only" asp-for="FirstName">FirstName</label>
+                <input class="form-control" type="text" asp-for="FirstName" placeholder="First Name"/>
             </div>
             <div>
-                <label asp-for="LastName">LastName</label>
-                <input type="text" asp-for="LastName"/>
+                <label class="sr-only" asp-for="LastName">LastName</label>
+                <input class="form-control" type="text" asp-for="LastName" placeholder="Last Name"/>
             </div>
             <div>
-                <label asp-for="Age">Age</label>
-                <input type="number" asp-for="Age"/>
+                <label class="sr-only" asp-for="Age">Age</label>
+                <input class="form-control" type="number" asp-for="Age" placeholder="Age"/>
             </div>
             <div>
-                <label asp-for="City">City</label>
-                <input type="text" asp-for="City"/>
+                <label class="sr-only" asp-for="City">City</label>
+                <input class="form-control" type="text" asp-for="City" placeholder="City">
             </div>
             <div>
-                <label asp-for="Interests">Interests</label>
-                <input type="text" asp-for="Interests"/>
+                <label class="sr-only" asp-for="Interests">Interests</label>
+                <input class="form-control" type="text" asp-for="Interests" placeholder="Interested In"/>
             </div>
-            <button type="submit">Create</button>
+            <button class="btn btn-lg btn-primary btn-block login-button" type="submit">Create</button>
         </form>
     </div>
 </div>

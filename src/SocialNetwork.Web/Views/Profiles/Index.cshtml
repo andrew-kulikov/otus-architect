@@ -6,10 +6,10 @@
 }
 
 
-<div>
+<div class="profiles-container">
     @foreach (var profile in Model)
     {
-        <div class="card" style="width: 18rem;">
+        <div class="card user-card" style="width: 18rem;">
             <div class="card-body">
                 <h5 class="card-title">@profile.FirstName @profile.LastName</h5>
                 <h6 class="card-subtitle mb-2 text-muted">City: @profile.City, Age: @profile.Age</h6>

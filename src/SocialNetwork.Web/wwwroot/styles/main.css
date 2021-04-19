@@ -30,3 +30,11 @@ body {
 .form-signin .login-button {
     margin-top: 15px;
 }
+
+.user-card {
+    margin: 5px;
+}
+
+.profiles-container {
+    display: flex;
+}
