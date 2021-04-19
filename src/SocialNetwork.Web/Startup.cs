@@ -30,7 +30,11 @@ namespace SocialNetwork.Web
 
             services.AddHttpContextAccessor();
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-                .AddCookie();
+                .AddCookie(options =>
+                {
+                    options.LoginPath = "/Login";
+                    options.LogoutPath = "/Login/Logout";
+                });
 
             services.AddFluentMigratorCore()
                 .ConfigureRunner(rb => rb
@@ -51,6 +55,8 @@ namespace SocialNetwork.Web
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment()) app.UseDeveloperExceptionPage();
+
+            app.UseStaticFiles();
 
             app.UseRouting();
 

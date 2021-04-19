@@ -6,6 +6,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Views\_Layout.cshtml~RF3fb34f.TMP" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="FluentMigrator.Runner" Version="3.2.15" />
     <PackageReference Include="FluentMigrator.Runner.MySql" Version="3.2.15" />
   </ItemGroup>
