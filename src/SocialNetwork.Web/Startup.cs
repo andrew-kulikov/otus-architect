@@ -1,4 +1,3 @@
-using FluentMigrator.Runner;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -7,7 +6,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using SocialNetwork.Core.Repositories;
 using SocialNetwork.Core.Services;
-using SocialNetwork.Data.Migrations;
 using SocialNetwork.Infrastructure.Configuration;
 using SocialNetwork.Infrastructure.MySQL;
 using SocialNetwork.Infrastructure.Repositories;
@@ -35,12 +33,6 @@ namespace SocialNetwork.Web
                     options.LoginPath = "/Login";
                     options.LogoutPath = "/Login/Logout";
                 });
-
-            services.AddFluentMigratorCore()
-                .ConfigureRunner(rb => rb
-                    .AddMySql5()
-                    .WithGlobalConnectionString(Configuration.GetConnectionString("SocialNetworkDb"))
-                    .ScanIn(typeof(AddUserTable).Assembly).For.Migrations());
 
             services.AddOptions<ConnectionStrings>()
                 .Bind(Configuration.GetSection("ConnectionStrings"));
