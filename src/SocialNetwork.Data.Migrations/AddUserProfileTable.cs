@@ -2,7 +2,7 @@
 
 namespace SocialNetwork.Data.Migrations
 {
-    [Migration(20210414205)]
+    [Migration(202104142215)]
     public class AddUserProfileTable : Migration
     {
         public override void Up()
