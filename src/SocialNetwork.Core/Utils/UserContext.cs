@@ -2,8 +2,8 @@
 
 namespace SocialNetwork.Core.Utils
 {
-    public interface IUserContext
+    public class UserContext: IUserContext
     {
-        User CurrentUser { get; set; }
+        public User CurrentUser { get; set; }
     }
 }

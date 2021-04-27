@@ -1,6 +1,8 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
+using SocialNetwork.Core.Exceptions;
 using SocialNetwork.Web.ViewModels;
 using IAuthenticationService = SocialNetwork.Core.Services.IAuthenticationService;
 
@@ -23,10 +25,19 @@ namespace SocialNetwork.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> Login(LoginViewModel model)
         {
-            var user = await _authenticationService.LoginAsync(model.Username, model.Password);
-            return RedirectToAction("Index", "Home");
-        }
+            try
+            {
+                var user = await _authenticationService.LoginAsync(model.Username, model.Password);
 
+                return RedirectToAction("Index", "Profiles");
+            }
+            catch (AuthenticationException e)
+            {
+                ModelState.AddModelError("", e.Message);
+
+                return View("Index", model);
+            }
+        }
 
         [HttpGet]
         public async Task<IActionResult> Logout()

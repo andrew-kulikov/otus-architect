@@ -16,7 +16,7 @@ namespace SocialNetwork.Web.Authentication
             if (context == null) throw new ArgumentNullException(nameof(context));
             if (context.Principal == null) throw new ArgumentNullException(nameof(context.Principal));
 
-            var userId = context.Principal.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;
+            var userId = context.Principal.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.Name)?.Value;
             if (userId == null)
             {
                 context.RejectPrincipal();

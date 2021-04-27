@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using SocialNetwork.Core.Entities;
+using SocialNetwork.Core.Exceptions;
 using SocialNetwork.Core.Repositories;
 
 namespace SocialNetwork.Core.Services
@@ -27,14 +28,26 @@ namespace SocialNetwork.Core.Services
 
         public async Task<User> LoginAsync(string username, string password)
         {
-            var user = await _userRepository.GetUserAsync(username);
+            var user = await GetUser(username);
 
             var verificationResult = new PasswordHasher<User>().VerifyHashedPassword(user, user.PasswordHash, password);
-            if (verificationResult != PasswordVerificationResult.Success) throw new Exception("Invalid password");
+            if (verificationResult != PasswordVerificationResult.Success) throw new AuthenticationException("Invalid password");
 
             await _signInManager.SignInAsync(user);
 
             return user;
+        }
+
+        private async Task<User> GetUser(string username)
+        {
+            try
+            {
+                return await _userRepository.GetUserAsync(username);
+            }
+            catch (Exception e)
+            {
+                throw new AuthenticationException("User not found");
+            }
         }
     }
 }
