@@ -2,39 +2,55 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 using SocialNetwork.Core.Repositories;
+using SocialNetwork.Core.Utils;
 
 namespace SocialNetwork.Web.Controllers
 {
+    public class UserActionControllerBase : Controller
+    {
+        protected readonly IUserContext UserContext;
+
+        public UserActionControllerBase(IUserContext userContext)
+        {
+            UserContext = userContext;
+        }
+
+        public override async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
+        {
+            if (UserContext.CurrentUser.Profile == null)
+            {
+                context.Result = new RedirectToActionResult("CreateProfile", "Registration", context.RouteData);
+                return;
+            }
+
+            await base.OnActionExecutionAsync(context, next);
+        }
+    }
+
     [Authorize]
-    public class ProfilesController : Controller
+    public class ProfilesController : UserActionControllerBase
     {
         private readonly IUserProfileRepository _userProfileRepository;
-        private readonly IUserRepository _userRepository;
 
-        public ProfilesController(IUserRepository userRepository, IUserProfileRepository userProfileRepository)
+        public ProfilesController(IUserContext userContext, IUserProfileRepository userProfileRepository) 
+            : base(userContext)
         {
-            _userRepository = userRepository;
             _userProfileRepository = userProfileRepository;
         }
 
         public async Task<IActionResult> Index()
         {
-            var user = await _userRepository.GetUserAsync(User.Identity.Name);
-            if (user.Profile == null) return RedirectToAction("CreateProfile", "Registration");
-
             var allProfiles = await _userProfileRepository.GetAllUserProfilesAsync();
-            var otherProfiles = allProfiles.Where(p => p.UserId != user.Id).ToList();
+            var otherProfiles = allProfiles.Where(p => p.UserId != UserContext.CurrentUser.Id).ToList();
 
             return View(otherProfiles);
         }
 
         public async Task<IActionResult> My()
         {
-            var user = await _userRepository.GetUserAsync(User.Identity.Name);
-            if (user.Profile == null) return RedirectToAction("CreateProfile", "Registration");
-
-            return View(user.Profile);
+            return View(UserContext.CurrentUser.Profile);
         }
     }
 }

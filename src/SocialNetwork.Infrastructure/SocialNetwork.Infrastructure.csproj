@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <Folder Include="MySQL\" />
+    <Folder Include="Exceptions\" />
   </ItemGroup>
 
 </Project>

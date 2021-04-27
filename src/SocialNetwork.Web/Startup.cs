@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using SocialNetwork.Core.Repositories;
 using SocialNetwork.Core.Services;
+using SocialNetwork.Core.Utils;
 using SocialNetwork.Infrastructure.Configuration;
 using SocialNetwork.Infrastructure.MySQL;
 using SocialNetwork.Infrastructure.Repositories;
@@ -32,6 +33,10 @@ namespace SocialNetwork.Web
                 {
                     options.LoginPath = "/Login";
                     options.LogoutPath = "/Login/Logout";
+                    options.Events = new CookieAuthenticationEvents
+                    {
+                        OnValidatePrincipal = PrincipalValidator.ValidateAsync
+                    };
                 });
 
             services.AddOptions<ConnectionStrings>()
@@ -42,6 +47,8 @@ namespace SocialNetwork.Web
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IUserProfileRepository, UserProfileRepository>();
             services.AddScoped<SqlConnectionFactory>();
+
+            services.AddScoped<IUserContext, UserContext>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
