@@ -52,5 +52,12 @@ namespace SocialNetwork.Web.Controllers
         {
             return View(UserContext.CurrentUser.Profile);
         }
+
+        public async Task<IActionResult> Profile(long userId)
+        {
+            var userProfile = await _userProfileRepository.GetUserProfileAsync(userId);
+
+            return View(userProfile);
+        }
     }
 }

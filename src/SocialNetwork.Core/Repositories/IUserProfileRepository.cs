@@ -8,5 +8,6 @@ namespace SocialNetwork.Core.Repositories
     {
         Task AddUserProfileAsync(User user, UserProfile userProfile);
         Task<ICollection<UserProfile>> GetAllUserProfilesAsync();
+        Task<UserProfile> GetUserProfileAsync(long userId);
     }
 }

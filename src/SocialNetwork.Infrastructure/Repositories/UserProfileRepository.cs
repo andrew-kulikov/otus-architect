@@ -44,5 +44,22 @@ namespace SocialNetwork.Infrastructure.Repositories
                 return profiles.ToList();
             }
         }
+
+        public async Task<UserProfile> GetUserProfileAsync(long userId)
+        {
+            const string sql =
+                @"select * 
+                  from UserProfile
+                  where UserId = @UserId";
+
+            using (var connection = _connectionFactory.CreateConnection())
+            {
+                connection.Open();
+
+                var profiles = await connection.QueryAsync<UserProfile>(sql, new { UserId = userId });
+
+                return profiles.First();
+            }
+        }
     }
 }
