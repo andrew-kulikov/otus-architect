@@ -42,6 +42,8 @@ namespace SocialNetwork.Web
             services.AddOptions<ConnectionStrings>()
                 .Bind(Configuration.GetSection("ConnectionStrings"));
 
+            services.AddAutoMapper(typeof(Startup).Assembly);
+
             services.AddScoped<ISignInManager, SignInManager>();
             services.AddScoped<IAuthenticationService, AuthenticationService>();
             services.AddScoped<IUserRepository, UserRepository>();

@@ -1,43 +1,26 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Filters;
+using SocialNetwork.Core.Entities;
 using SocialNetwork.Core.Repositories;
 using SocialNetwork.Core.Utils;
+using SocialNetwork.Web.ViewModels;
 
 namespace SocialNetwork.Web.Controllers
 {
-    public class UserActionControllerBase : Controller
-    {
-        protected readonly IUserContext UserContext;
-
-        public UserActionControllerBase(IUserContext userContext)
-        {
-            UserContext = userContext;
-        }
-
-        public override async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
-        {
-            if (UserContext.CurrentUser.Profile == null)
-            {
-                context.Result = new RedirectToActionResult("CreateProfile", "Registration", context.RouteData);
-                return;
-            }
-
-            await base.OnActionExecutionAsync(context, next);
-        }
-    }
-
     [Authorize]
     public class ProfilesController : UserActionControllerBase
     {
         private readonly IUserProfileRepository _userProfileRepository;
+        private readonly IMapper _mapper;
 
-        public ProfilesController(IUserContext userContext, IUserProfileRepository userProfileRepository) 
+        public ProfilesController(IUserContext userContext, IUserProfileRepository userProfileRepository, IMapper mapper) 
             : base(userContext)
         {
             _userProfileRepository = userProfileRepository;
+            _mapper = mapper;
         }
 
         public async Task<IActionResult> Index()
@@ -56,8 +39,9 @@ namespace SocialNetwork.Web.Controllers
         public async Task<IActionResult> Profile(long userId)
         {
             var userProfile = await _userProfileRepository.GetUserProfileAsync(userId);
+            var model = _mapper.Map<UserProfile, UserProfileViewModel>(userProfile);
 
-            return View(userProfile);
+            return View(model);
         }
     }
 }
