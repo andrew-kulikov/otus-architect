@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.Extensions.DependencyInjection;
 using SocialNetwork.Core.Repositories;
 using SocialNetwork.Core.Utils;
+using SocialNetwork.Web.Utils;
 
 namespace SocialNetwork.Web.Authentication
 {
@@ -16,8 +17,8 @@ namespace SocialNetwork.Web.Authentication
             if (context == null) throw new ArgumentNullException(nameof(context));
             if (context.Principal == null) throw new ArgumentNullException(nameof(context.Principal));
 
-            var userId = context.Principal.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.Name)?.Value;
-            if (userId == null)
+            var username = context.Principal.TryGetUsername();
+            if (username == null)
             {
                 context.RejectPrincipal();
                 return;
@@ -25,7 +26,7 @@ namespace SocialNetwork.Web.Authentication
             
             var userRepository = context.HttpContext.RequestServices.GetRequiredService<IUserRepository>();
 
-            var user = await userRepository.GetUserAsync(userId);
+            var user = await userRepository.GetUserAsync(username);
             if (user == null)
             {
                 context.RejectPrincipal();

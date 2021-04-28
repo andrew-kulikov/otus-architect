@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
 using SocialNetwork.Core.Entities;
 using SocialNetwork.Core.Services;
+using SocialNetwork.Web.Utils;
 
 namespace SocialNetwork.Web.Authentication
 {
@@ -22,7 +23,9 @@ namespace SocialNetwork.Web.Authentication
         {
             var claims = new List<Claim>
             {
-                new(ClaimTypes.Name, user.Username)
+                new(ClaimTypes.Name, user.Username),
+                new(Constants.ClaimTypes.Username, user.Username),
+                new(Constants.ClaimTypes.UserId, user.Id.ToString())
             };
 
             var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);

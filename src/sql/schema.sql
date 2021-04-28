@@ -1,8 +1,8 @@
-create database if not exists SocialNetwork;
+CREATE TABLE IF NOT EXISTS SocialNetwork;
 
-use SocialNetwork;
+USE SocialNetwork;
 
-CREATE TABLE if not exists `User` (
+CREATE TABLE IF NOT EXISTS `User` (
 	`Id` BIGINT NOT NULL AUTO_INCREMENT, 
     `Username` NVARCHAR(255) NOT NULL, 
     `Email` NVARCHAR(255) NOT NULL, 
@@ -10,7 +10,7 @@ CREATE TABLE if not exists `User` (
     `RegisteredAt` DATETIME NOT NULL, 
     CONSTRAINT `PK_User` PRIMARY KEY (`Id`)) ENGINE = INNODB;
     
-CREATE TABLE if not exists  `UserProfile` (
+CREATE TABLE IF NOT EXISTS  `UserProfile` (
 	`UserId` BIGINT NOT NULL, 
 	`FirstName` NVARCHAR(255) NOT NULL, 
 	`LastName` NVARCHAR(255) NOT NULL, 
@@ -22,10 +22,11 @@ CREATE TABLE if not exists  `UserProfile` (
 		FOREIGN KEY (`UserId`) 
         REFERENCES `User` (`Id`)) ENGINE = INNODB;
 
-CREATE TABLE if not exists Friendship ( 
-    RequesterId BIGINT NOT NULL,
-    AddresseeId BIGINT NOT NULL, 
-    CreatedDateTime DATETIME NOT NULL,
+CREATE TABLE IF NOT EXISTS Friendship ( 
+    `RequesterId` BIGINT NOT NULL,
+    `AddresseeId` BIGINT NOT NULL, 
+    `Created` DATETIME NOT NULL,
+    `Status` INTEGER NOT NULL, 
 
     CONSTRAINT Friendship_PK PRIMARY KEY (RequesterId, AddresseeId),
     CONSTRAINT FriendshipToRequester_FK FOREIGN KEY (RequesterId) REFERENCES UserProfile (UserId),

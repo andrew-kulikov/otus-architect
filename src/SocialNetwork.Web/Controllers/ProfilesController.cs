@@ -5,7 +5,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SocialNetwork.Core.Entities;
 using SocialNetwork.Core.Repositories;
+using SocialNetwork.Core.Services;
 using SocialNetwork.Core.Utils;
+using SocialNetwork.Web.Utils;
 using SocialNetwork.Web.ViewModels;
 
 namespace SocialNetwork.Web.Controllers
@@ -14,13 +16,18 @@ namespace SocialNetwork.Web.Controllers
     public class ProfilesController : UserActionControllerBase
     {
         private readonly IUserProfileRepository _userProfileRepository;
+        private readonly IFriendshipService _friendshipService;
         private readonly IMapper _mapper;
 
-        public ProfilesController(IUserContext userContext, IUserProfileRepository userProfileRepository, IMapper mapper) 
-            : base(userContext)
+        public ProfilesController(
+            IMapper mapper,
+            IUserContext userContext, 
+            IUserProfileRepository userProfileRepository,
+            IFriendshipService friendshipService) : base(userContext)
         {
             _userProfileRepository = userProfileRepository;
             _mapper = mapper;
+            _friendshipService = friendshipService;
         }
 
         public async Task<IActionResult> Index()
@@ -39,9 +46,25 @@ namespace SocialNetwork.Web.Controllers
         public async Task<IActionResult> Profile(long userId)
         {
             var userProfile = await _userProfileRepository.GetUserProfileAsync(userId);
+            var friendship = await _friendshipService.GetFriendshipAsync(User.GetUserId(), userId);
+
+            return View(BuildProfileViewModel(userProfile, friendship));
+        }
+
+        private UserProfileViewModel BuildProfileViewModel(UserProfile userProfile, Friendship friendship)
+        {
             var model = _mapper.Map<UserProfile, UserProfileViewModel>(userProfile);
 
-            return View(model);
+            model.IsFriendshipInitiated = friendship != null;
+
+            if (friendship != null)
+            {
+                model.FriendshipStatus = friendship.Status;
+                model.IsUserRequester = userProfile.UserId == friendship.AddresseeId;
+                model.FriendshipCreated = friendship.Created;
+            }
+
+            return model;
         }
     }
 }

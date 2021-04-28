@@ -46,11 +46,14 @@ namespace SocialNetwork.Web
 
             services.AddScoped<ISignInManager, SignInManager>();
             services.AddScoped<IAuthenticationService, AuthenticationService>();
-            services.AddScoped<IUserRepository, UserRepository>();
-            services.AddScoped<IUserProfileRepository, UserProfileRepository>();
+            services.AddScoped<IUserContext, UserContext>();
+
             services.AddScoped<SqlConnectionFactory>();
 
-            services.AddScoped<IUserContext, UserContext>();
+            services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IUserProfileRepository, UserProfileRepository>();
+            services.AddScoped<IFriendshipRepository, FriendshipRepository>();
+            services.AddScoped<IFriendshipService, FriendshipService>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

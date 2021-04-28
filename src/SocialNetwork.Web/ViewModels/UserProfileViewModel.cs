@@ -1,4 +1,7 @@
-﻿namespace SocialNetwork.Web.ViewModels
+﻿using System;
+using SocialNetwork.Core.Entities;
+
+namespace SocialNetwork.Web.ViewModels
 {
     public class UserProfileViewModel
     {
@@ -8,5 +11,10 @@
         public int Age { get; set; }
         public string Interests { get; set; }
         public string City { get; set; }
+
+        public bool IsFriendshipInitiated { get; set; }
+        public bool IsUserRequester { get; set; }
+        public DateTime FriendshipCreated { get; set; }
+        public FriendshipStatus FriendshipStatus { get; set; }
     }
 }
