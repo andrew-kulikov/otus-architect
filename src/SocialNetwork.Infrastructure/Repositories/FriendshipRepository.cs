@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Dapper;
 using SocialNetwork.Core.Entities;
@@ -10,7 +8,7 @@ using SocialNetwork.Infrastructure.MySQL;
 
 namespace SocialNetwork.Infrastructure.Repositories
 {
-    public class FriendshipRepository: IFriendshipRepository
+    public class FriendshipRepository : IFriendshipRepository
     {
         private readonly SqlConnectionFactory _connectionFactory;
 
@@ -19,36 +17,38 @@ namespace SocialNetwork.Infrastructure.Repositories
             _connectionFactory = connectionFactory;
         }
 
-        public async Task<ICollection<UserProfile>> GetFriendsAsync(long userId)
+        public async Task<ICollection<Friendship>> GetFriendsAsync(long userId)
         {
-            //const string sql =
-            //    @"select User.*, UserProfile.* 
-            //      from User
-            //      left join UserProfile on UserProfile.UserId = User.Id
-            //      where User.Username = @Username;";
+            const string sql =
+                @"select Friendship.*, Requester.*,  Addressee.*
+                    from Friendship
+                    join UserProfile Requester on Requester.UserId = Friendship.RequesterId
+                    join UserProfile Addressee on Addressee.UserId = Friendship.AddresseeId
+                    where Friendship.RequesterId = @UserId or Friendship.AddresseeId = @UserId;";
 
-            //using (var connection = _connectionFactory.CreateConnection())
-            //{
-            //    connection.Open();
+            using (var connection = _connectionFactory.CreateConnection())
+            {
+                connection.Open();
 
-            //    var users = await connection.QueryAsync<User, UserProfile, User>(sql,
-            //        (user, profile) =>
-            //        {
-            //            user.Profile = profile;
-            //            return user;
-            //        },
-            //        new { Username = username },
-            //        splitOn: "UserId");
+                var result = await connection.QueryAsync<Friendship, UserProfile, UserProfile, Friendship>(sql,
+                    (friendship, requester, addressee) =>
+                    {
+                        friendship.Requester = requester;
+                        friendship.Addressee = addressee;
 
-            //    return users.First();
-            //}
+                        return friendship;
+                    },
+                    new {UserId = userId},
+                    splitOn: "UserId");
 
-            throw new NotImplementedException();
+                return result.ToList();
+            }
         }
 
         public async Task AddAsync(Friendship friendship)
         {
-            const string sql = @"insert into Friendship (RequesterId, AddresseeId, Created, Status) values (@RequesterId, @AddresseeId, @Created, @Status);";
+            const string sql =
+                @"insert into Friendship (RequesterId, AddresseeId, Created, Status) values (@RequesterId, @AddresseeId, @Created, @Status);";
 
             using (var connection = _connectionFactory.CreateConnection())
             {
@@ -66,9 +66,21 @@ namespace SocialNetwork.Infrastructure.Repositories
             {
                 connection.Open();
 
-                var result = await connection.QueryAsync<Friendship>(sql, new { RequesterId = requesterId, AddresseeId = addresseeId});
+                var result = await connection.QueryAsync<Friendship>(sql, new {RequesterId = requesterId, AddresseeId = addresseeId});
 
                 return result.FirstOrDefault();
+            }
+        }
+
+        public async Task UpdateStatusAsync(long requesterId, long addresseeId, FriendshipStatus status)
+        {
+            const string sql = @"update Friendship set Status = @Status where RequesterId = @RequesterId and AddresseeId = @AddresseeId;";
+
+            using (var connection = _connectionFactory.CreateConnection())
+            {
+                connection.Open();
+
+                await connection.ExecuteAsync(sql, new {Status = status, RequesterId = requesterId, AddresseeId = addresseeId});
             }
         }
     }

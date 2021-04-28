@@ -1,0 +1,78 @@
+﻿@model SocialNetwork.Web.ViewModels.FriendsViewModel
+
+@{
+    Layout = "../_Layout";
+    ViewBag.Title = "Profiles";
+}
+
+
+<div class="frinds-base-container">
+    <div class="friends-block-container">
+        <h1>Friends:</h1>
+        
+        <div class="friends-container">
+            @foreach (var profile in Model.Friends)
+            {
+                <div class="card user-card" style="width: 18rem;">
+                    <div class="card-body">
+                        <h5 class="card-title">@profile.FirstName @profile.LastName</h5>
+                        <h6 class="card-subtitle mb-2 text-muted">City: @profile.City, Age: @profile.Age</h6>
+                        <p class="card-text">@profile.Interests</p>
+                        <a class="card-link" asp-controller="Profiles" asp-action="Profile" asp-route-userId="@profile.UserId">Go to profile</a>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+    
+    <div class="friends-block-container">
+        <h1>Incoming requests:</h1>
+
+        <div class="friends-container">
+            @foreach (var friendship in Model.IncomingRequests)
+            {
+                <div class="card user-card" style="width: 18rem;">
+                    <div class="card-body">
+                        <h5 class="card-title">@friendship.Requester.FirstName @friendship.Requester.LastName</h5>
+                        <h6 class="card-subtitle mb-2 text-muted">City: @friendship.Requester.City, Age: @friendship.Requester.Age</h6>
+                        <p class="card-text">@friendship.Requester.Interests</p>
+                        <a class="card-link" asp-controller="Profiles" asp-action="Profile" asp-route-userId="@friendship.Requester.UserId">Go to profile</a>
+                        <button id="accept-friend-button" data-userId="@friendship.RequesterId">Accept</button>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="friends-block-container">
+        <h1>Pending requests:</h1>
+        
+        <div class="friends-container">
+            @foreach (var friendship in Model.PendingRequests)
+            {
+                <div class="card user-card" style="width: 18rem;">
+                    <div class="card-body">
+                        <h5 class="card-title">@friendship.Addressee.FirstName @friendship.Addressee.LastName</h5>
+                        <h6 class="card-subtitle mb-2 text-muted">City: @friendship.Addressee.City, Age: @friendship.Addressee.Age</h6>
+                        <p class="card-text">@friendship.Addressee.Interests</p>
+                        <a class="card-link" asp-controller="Profiles" asp-action="Profile" asp-route-userId="@friendship.Addressee.UserId">Go to profile</a>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function(event) {
+        if (document.getElementById("accept-friend-button")) {
+            document.getElementById("accept-friend-button").onclick = function (e) {
+                var userId = e.target.getAttribute("data-userId");
+                console.log(userId);
+                fetch("@Url.Action("AcceptFriend", "Friends")?userId=" + userId, { method: 'PUT' })
+                    .then(response => response.status === 200 && alert("success, refresh page"))
+                    .catch(data => alert("error: " + data));
+            }
+        }
+    });
+</script>

@@ -38,3 +38,16 @@ body {
 .profiles-container {
     display: flex;
 }
+
+.frinds-base-container {
+
+}
+
+.friends-block-container {
+    margin-bottom: 20px;
+    border: 1px solid grey;
+}
+
+.friends-container {
+    display: flex;
+}

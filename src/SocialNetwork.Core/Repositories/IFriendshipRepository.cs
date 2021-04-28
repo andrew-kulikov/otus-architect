@@ -6,8 +6,9 @@ namespace SocialNetwork.Core.Repositories
 {
     public interface IFriendshipRepository
     {
-        Task<ICollection<UserProfile>> GetFriendsAsync(long userId);
+        Task<ICollection<Friendship>> GetFriendsAsync(long userId);
         Task AddAsync(Friendship friendship);
         Task<Friendship> GetFriendshipAsync(long requesterId, long addresseeId);
+        Task UpdateStatusAsync(long requesterId, long addresseeId, FriendshipStatus status);
     }
 }

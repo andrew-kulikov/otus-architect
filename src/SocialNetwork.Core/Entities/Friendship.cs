@@ -8,6 +8,9 @@ namespace SocialNetwork.Core.Entities
         public long AddresseeId { get; set; }
         public DateTime Created { get; set; }
         public FriendshipStatus Status { get; set; }
+
+        public UserProfile Requester { get; set; }
+        public UserProfile Addressee { get; set; }
     }
 
     public enum FriendshipStatus

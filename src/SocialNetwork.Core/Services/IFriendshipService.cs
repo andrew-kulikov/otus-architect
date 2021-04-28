@@ -9,9 +9,10 @@ namespace SocialNetwork.Core.Services
 {
     public interface IFriendshipService
     {
-        Task<ICollection<UserProfile>> GetFriendsAsync(long userId);
+        Task<ICollection<Friendship>> GetFriendsAsync(long userId);
         Task AddAsync(long requesterId, long addresseeId);
         Task<Friendship> GetFriendshipAsync(long requesterId, long addresseeId);
+        Task AcceptAsync(long requesterId, long addresseeId);
     }
 
     public class FriendshipService: IFriendshipService
@@ -25,9 +26,9 @@ namespace SocialNetwork.Core.Services
             _friendshipRepository = friendshipRepository;
         }
 
-        public Task<ICollection<UserProfile>> GetFriendsAsync(long userId)
+        public async Task<ICollection<Friendship>> GetFriendsAsync(long userId)
         {
-            throw new NotImplementedException();
+            return await _friendshipRepository.GetFriendsAsync(userId);
         }
 
         public async Task AddAsync(long requesterId, long addresseeId)
@@ -52,6 +53,14 @@ namespace SocialNetwork.Core.Services
             var backwardFriendship = await _friendshipRepository.GetFriendshipAsync(addresseeId, requesterId);
 
             return forwardFriendship ?? backwardFriendship;
+        }
+
+        public async Task AcceptAsync(long requesterId, long addresseeId)
+        {
+            var forwardFriendship = await _friendshipRepository.GetFriendshipAsync(requesterId, addresseeId);
+            if (forwardFriendship == null) throw new Exception("Friendship not found");
+
+            await _friendshipRepository.UpdateStatusAsync(requesterId, addresseeId, FriendshipStatus.RequestAccepted);
         }
     }
 }
