@@ -15,7 +15,7 @@
     <p><b>City:</b> @Model.City</p>
     <p><b>Interests:</b> @Model.Interests</p>
 
-    @if (!Model.IsFriendshipInitiated)
+    @if (!Model.IsFriendshipInitiated || Model.FriendshipStatus == FriendshipStatus.RemovedByAddressee || Model.FriendshipStatus == FriendshipStatus.RemovedByRequester)
     {
         <button id="add-friend-button" >Add friend</button>
     }

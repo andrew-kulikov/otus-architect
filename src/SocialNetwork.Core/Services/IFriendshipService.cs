@@ -13,6 +13,7 @@ namespace SocialNetwork.Core.Services
         Task AddAsync(long requesterId, long addresseeId);
         Task<Friendship> GetFriendshipAsync(long requesterId, long addresseeId);
         Task AcceptAsync(long requesterId, long addresseeId);
+        Task RemoveAsync(long userId, long friendId);
     }
 
     public class FriendshipService: IFriendshipService
@@ -49,18 +50,37 @@ namespace SocialNetwork.Core.Services
 
         public async Task<Friendship> GetFriendshipAsync(long requesterId, long addresseeId)
         {
-            var forwardFriendship = await _friendshipRepository.GetFriendshipAsync(requesterId, addresseeId);
-            var backwardFriendship = await _friendshipRepository.GetFriendshipAsync(addresseeId, requesterId);
+            var forwardFriendship = await _friendshipRepository.GetAsync(requesterId, addresseeId);
+            var backwardFriendship = await _friendshipRepository.GetAsync(addresseeId, requesterId);
 
             return forwardFriendship ?? backwardFriendship;
         }
 
         public async Task AcceptAsync(long requesterId, long addresseeId)
         {
-            var forwardFriendship = await _friendshipRepository.GetFriendshipAsync(requesterId, addresseeId);
+            var forwardFriendship = await _friendshipRepository.GetAsync(requesterId, addresseeId);
             if (forwardFriendship == null) throw new Exception("Friendship not found");
 
             await _friendshipRepository.UpdateStatusAsync(requesterId, addresseeId, FriendshipStatus.RequestAccepted);
+        }
+
+        public async Task RemoveAsync(long userId, long friendId)
+        {
+            var forwardFriendship = await _friendshipRepository.GetAsync(userId, friendId);
+            if (forwardFriendship != null)
+            {
+                await _friendshipRepository.UpdateStatusAsync(userId, friendId, FriendshipStatus.RemovedByRequester);
+                return;
+            }
+
+            var backwardFriendship = await _friendshipRepository.GetAsync(friendId, userId);
+            if (backwardFriendship != null)
+            {
+                await _friendshipRepository.UpdateStatusAsync(friendId, userId, FriendshipStatus.RemovedByAddressee);
+                return;
+            }
+
+            throw new Exception("Friendship not found");
         }
     }
 }

@@ -58,7 +58,7 @@ namespace SocialNetwork.Infrastructure.Repositories
             }
         }
 
-        public async Task<Friendship> GetFriendshipAsync(long requesterId, long addresseeId)
+        public async Task<Friendship> GetAsync(long requesterId, long addresseeId)
         {
             const string sql = @"select * from Friendship where RequesterId = @RequesterId and AddresseeId = @AddresseeId;";
 

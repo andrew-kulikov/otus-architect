@@ -19,6 +19,7 @@
                         <h6 class="card-subtitle mb-2 text-muted">City: @profile.City, Age: @profile.Age</h6>
                         <p class="card-text">@profile.Interests</p>
                         <a class="card-link" asp-controller="Profiles" asp-action="Profile" asp-route-userId="@profile.UserId">Go to profile</a>
+                        <button class="remove-friend-button" data-userId="@profile.UserId">Remove friend</button>
                     </div>
                 </div>
             }
@@ -37,7 +38,7 @@
                         <h6 class="card-subtitle mb-2 text-muted">City: @friendship.Requester.City, Age: @friendship.Requester.Age</h6>
                         <p class="card-text">@friendship.Requester.Interests</p>
                         <a class="card-link" asp-controller="Profiles" asp-action="Profile" asp-route-userId="@friendship.Requester.UserId">Go to profile</a>
-                        <button id="accept-friend-button" data-userId="@friendship.RequesterId">Accept</button>
+                        <button class="accept-friend-button" data-userId="@friendship.RequesterId">Accept</button>
                     </div>
                 </div>
             }
@@ -64,13 +65,24 @@
 </div>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function(event) {
-        if (document.getElementById("accept-friend-button")) {
-            document.getElementById("accept-friend-button").onclick = function (e) {
+    document.addEventListener("DOMContentLoaded", function (event) {
+        var acceptButtons = document.getElementsByClassName("accept-friend-button");
+        for (var i = 0; i < acceptButtons.length; i++) {
+            acceptButtons[i].onclick = function (e) {
+                var userId = e.target.getAttribute("data-userId");
+                fetch("@Url.Action("AcceptFriend", "Friends")?userId=" + userId, { method: 'PUT' })
+                    .then(response => response.status === 200 && alert("friend accepted, refresh page"))
+                    .catch(data => alert("error: " + data));
+            }
+        }
+
+        var removeButtons = document.getElementsByClassName("remove-friend-button");
+        for (var i = 0; i < removeButtons.length; i++) {
+            removeButtons[i].onclick = function (e) {
                 var userId = e.target.getAttribute("data-userId");
                 console.log(userId);
-                fetch("@Url.Action("AcceptFriend", "Friends")?userId=" + userId, { method: 'PUT' })
-                    .then(response => response.status === 200 && alert("success, refresh page"))
+                fetch("@Url.Action("AcceptFriend", "Friends")/" + userId, { method: 'DELETE' })
+                    .then(response => response.status === 200 && alert("friend removed, refresh page"))
                     .catch(data => alert("error: " + data));
             }
         }

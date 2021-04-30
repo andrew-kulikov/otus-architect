@@ -8,7 +8,7 @@ namespace SocialNetwork.Core.Repositories
     {
         Task<ICollection<Friendship>> GetFriendsAsync(long userId);
         Task AddAsync(Friendship friendship);
-        Task<Friendship> GetFriendshipAsync(long requesterId, long addresseeId);
+        Task<Friendship> GetAsync(long requesterId, long addresseeId);
         Task UpdateStatusAsync(long requesterId, long addresseeId, FriendshipStatus status);
     }
 }

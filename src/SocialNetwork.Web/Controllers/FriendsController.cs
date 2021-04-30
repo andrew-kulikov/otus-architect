@@ -81,5 +81,21 @@ namespace SocialNetwork.Web.Controllers
                 return BadRequest(e.Message);
             }
         }
+
+        [HttpDelete]
+        [Route("api/friends/{friendId}")]
+        public async Task<IActionResult> DeleteFriend(long friendId)
+        {
+            try
+            {
+                await _friendshipService.RemoveAsync(User.GetUserId(), friendId);
+
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
     }
 }
