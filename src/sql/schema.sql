@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS SocialNetwork;
+CREATE DATABASE IF NOT EXISTS SocialNetwork;
 
 USE SocialNetwork;
 
