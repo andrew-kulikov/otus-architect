@@ -19,4 +19,4 @@ Technical requirements:
 * No SQL injections
 
 Implementation notes:
-1. Task 1 - Prototype. full report available in documentaion
+1. [Task 1](docs/task1/README.md) - Prototype. 
