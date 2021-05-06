@@ -48,6 +48,8 @@ namespace SocialNetwork.Web
             services.AddScoped<IAuthenticationService, AuthenticationService>();
             services.AddScoped<IUserContext, UserContext>();
 
+            services.AddScoped<DbContext>();
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<SqlConnectionFactory>();
 
             services.AddScoped<IUserRepository, UserRepository>();

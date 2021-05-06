@@ -10,11 +10,11 @@ namespace SocialNetwork.Infrastructure.Repositories
 {
     public class UserProfileRepository : IUserProfileRepository
     {
-        private readonly SqlConnectionFactory _connectionFactory;
+        private readonly DbContext _dbContext;
 
-        public UserProfileRepository(SqlConnectionFactory connectionFactory)
+        public UserProfileRepository(DbContext dbContext)
         {
-            _connectionFactory = connectionFactory;
+            _dbContext = dbContext;
         }
 
         public async Task AddUserProfileAsync(User user, UserProfile userProfile)
@@ -23,26 +23,19 @@ namespace SocialNetwork.Infrastructure.Repositories
 
             userProfile.UserId = user.Id;
 
-            using (var connection = _connectionFactory.CreateConnection())
-            {
-                connection.Open();
-
-                await connection.ExecuteAsync(sql, userProfile);
-            }
+            await _dbContext.AddCommandAsync(connection => connection.ExecuteAsync(sql, userProfile));
         }
 
         public async Task<ICollection<UserProfile>> GetAllUserProfilesAsync()
         {
             const string sql = @"select * from UserProfile";
 
-            using (var connection = _connectionFactory.CreateConnection())
+            return await _dbContext.ExecuteQueryAsync(async connection =>
             {
-                connection.Open();
-
                 var profiles = await connection.QueryAsync<UserProfile>(sql);
 
                 return profiles.ToList();
-            }
+            });
         }
 
         public async Task<UserProfile> GetUserProfileAsync(long userId)
@@ -52,14 +45,12 @@ namespace SocialNetwork.Infrastructure.Repositories
                   from UserProfile
                   where UserId = @UserId";
 
-            using (var connection = _connectionFactory.CreateConnection())
+            return await _dbContext.ExecuteQueryAsync(async connection =>
             {
-                connection.Open();
-
                 var profiles = await connection.QueryAsync<UserProfile>(sql, new { UserId = userId });
 
                 return profiles.First();
-            }
+            });
         }
     }
 }

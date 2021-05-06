@@ -13,15 +13,18 @@ namespace SocialNetwork.Web.Controllers
         private readonly IAuthenticationService _authenticationService;
         private readonly IUserRepository _userRepository;
         private readonly IUserProfileRepository _userProfileRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
         public RegistrationController(
             IAuthenticationService authenticationService, 
             IUserRepository userRepository, 
-            IUserProfileRepository userProfileRepository)
+            IUserProfileRepository userProfileRepository, 
+            IUnitOfWork unitOfWork)
         {
             _authenticationService = authenticationService;
             _userRepository = userRepository;
             _userProfileRepository = userProfileRepository;
+            _unitOfWork = unitOfWork;
         }
 
         public IActionResult Index()
@@ -70,7 +73,9 @@ namespace SocialNetwork.Web.Controllers
                 City = model.City
             };
 
+            // TODO: Refactor - move to service
             await _userProfileRepository.AddUserProfileAsync(user, profile);
+            await _unitOfWork.CommitAsync(); 
 
             return RedirectToAction("Index", "Home");
         }

@@ -11,11 +11,16 @@ namespace SocialNetwork.Core.Services
     {
         private readonly IUserRepository _userRepository;
         private readonly ISignInManager _signInManager;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public AuthenticationService(IUserRepository userRepository, ISignInManager signInManager)
+        public AuthenticationService(
+            IUserRepository userRepository, 
+            ISignInManager signInManager, 
+            IUnitOfWork unitOfWork)
         {
             _userRepository = userRepository;
             _signInManager = signInManager;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task RegisterAsync(User user, string password)
@@ -24,6 +29,7 @@ namespace SocialNetwork.Core.Services
             user.RegisteredAt = DateTime.UtcNow;
 
             await _userRepository.AddUserAsync(user);
+            await _unitOfWork.CommitAsync();
         }
 
         public async Task<User> LoginAsync(string username, string password)

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
@@ -11,11 +10,11 @@ namespace SocialNetwork.Infrastructure.Repositories
 {
     public class UserRepository : IUserRepository
     {
-        private readonly SqlConnectionFactory _connectionFactory;
+        private readonly DbContext _dbContext;
 
-        public UserRepository(SqlConnectionFactory connectionFactory)
+        public UserRepository(DbContext dbContext)
         {
-            _connectionFactory = connectionFactory;
+            _dbContext = dbContext;
         }
 
         public async Task<User> GetUserAsync(string username)
@@ -26,10 +25,8 @@ namespace SocialNetwork.Infrastructure.Repositories
                   left join UserProfile on UserProfile.UserId = User.Id
                   where User.Username = @Username;";
 
-            using (var connection = _connectionFactory.CreateConnection())
+            return await _dbContext.ExecuteQueryAsync(async connection =>
             {
-                connection.Open();
-
                 var users = await connection.QueryAsync<User, UserProfile, User>(sql,
                     (user, profile) =>
                     {
@@ -40,33 +37,27 @@ namespace SocialNetwork.Infrastructure.Repositories
                     splitOn: "UserId");
 
                 return users.First();
-            }
+            });
         }
 
         public async Task<ICollection<User>> GetAllUsersAsync()
         {
             const string sql = @"select * from User;";
 
-            using (var connection = _connectionFactory.CreateConnection())
+            return await _dbContext.ExecuteQueryAsync(async connection =>
             {
-                connection.Open();
-
                 var users = await connection.QueryAsync<User>(sql);
 
                 return users.ToList();
-            }
+            });
         }
 
         public async Task AddUserAsync(User user)
         {
-            const string sql = @"insert into User (Username, Email, PasswordHash, RegisteredAt) values (@Username, @Email, @PasswordHash, @RegisteredAt);";
+            const string sql =
+                @"insert into User (Username, Email, PasswordHash, RegisteredAt) values (@Username, @Email, @PasswordHash, @RegisteredAt);";
 
-            using (var connection = _connectionFactory.CreateConnection())
-            {
-                connection.Open();
-
-                await connection.ExecuteAsync(sql, user);
-            }
+            await _dbContext.AddCommandAsync(connection => connection.ExecuteAsync(sql, user));
         }
     }
 }

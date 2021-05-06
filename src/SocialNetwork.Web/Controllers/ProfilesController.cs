@@ -38,7 +38,7 @@ namespace SocialNetwork.Web.Controllers
             return View(otherProfiles);
         }
 
-        public async Task<IActionResult> My()
+        public IActionResult My()
         {
             return View(UserContext.CurrentUser.Profile);
         }
