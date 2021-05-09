@@ -3,33 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MySql.Data.MySqlClient;
-using SocialNetwork.Core.Repositories;
 
 namespace SocialNetwork.Infrastructure.MySQL
 {
-    public class UnitOfWork : IUnitOfWork
-    {
-        private readonly DbContext _context;
-
-        public UnitOfWork(DbContext context)
-        {
-            _context = context;
-        }
-
-        public async Task<bool> CommitAsync()
-        {
-            var result = await _context.SaveChanges();
-
-            return result > 0;
-        }
-
-        public void Dispose()
-        {
-            _context.Dispose();
-        }
-    }
-
-    public class DbContext : IDisposable
+    public class DbContext : IAsyncDisposable
     {
         private readonly List<Func<MySqlConnection, Task>> _commands;
         private readonly MySqlConnection _connection;
@@ -42,11 +19,6 @@ namespace SocialNetwork.Infrastructure.MySQL
             _commands = new List<Func<MySqlConnection, Task>>();
         }
 
-        public void Dispose()
-        {
-            _connection?.Dispose();
-        }
-
         public Task AddCommandAsync(Func<MySqlConnection, Task> func)
         {
             _commands.Add(func);
@@ -56,16 +28,16 @@ namespace SocialNetwork.Infrastructure.MySQL
 
         public async Task<T> ExecuteQueryAsync<T>(Func<MySqlConnection, Task<T>> query)
         {
-            await OpenConnection();
+            await OpenConnectionAsync();
 
             return await query(_connection);
         }
 
-        public async Task<int> SaveChanges()
+        public async Task<int> SaveChangesAsync()
         {
             if (!_commands.Any()) return _commands.Count;
 
-            await OpenConnection();
+            await OpenConnectionAsync();
 
             await using (var transaction = await _connection.BeginTransactionAsync())
             {
@@ -76,10 +48,14 @@ namespace SocialNetwork.Infrastructure.MySQL
                 await transaction.CommitAsync();
             }
 
-            return _commands.Count;
+            var result = _commands.Count;
+
+            _commands.Clear();
+
+            return result;
         }
 
-        private async Task OpenConnection()
+        private async Task OpenConnectionAsync()
         {
             if (!_isConnectionOpen)
             {
@@ -87,6 +63,12 @@ namespace SocialNetwork.Infrastructure.MySQL
 
                 _isConnectionOpen = true;
             }
+        }
+
+        public async ValueTask DisposeAsync()
+        {
+            await SaveChangesAsync();
+            await _connection.CloseAsync();
         }
     }
 }

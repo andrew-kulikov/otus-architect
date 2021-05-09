@@ -8,7 +8,9 @@
 <div class="text-center">
     <h1 class="h3 mb-3 font-weight-normal">Registration</h1>
 
-    <form class="form-signin" asp-controller="Registration" asp-action="Register" method="post">
+    <form class="form-signin" asp-controller="Registration" asp-action="Register" method="post">        
+        <div asp-validation-summary="All"></div>
+
         <div>
             <label class="sr-only" asp-for="Email">Email</label>
             <input class="form-control" type="email" asp-for="Email" placeholder="Email" />

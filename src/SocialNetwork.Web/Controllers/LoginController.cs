@@ -8,6 +8,7 @@ using IAuthenticationService = SocialNetwork.Core.Services.IAuthenticationServic
 
 namespace SocialNetwork.Web.Controllers
 {
+    [Route("Login")]
     public class LoginController : Controller
     {
         private readonly IAuthenticationService _authenticationService;
@@ -17,29 +18,39 @@ namespace SocialNetwork.Web.Controllers
             _authenticationService = authenticationService;
         }
 
+        [HttpGet]
+        [Route("")]
         public IActionResult Index()
         {
             return View();
         }
 
         [HttpPost]
+        [Route("")]
         public async Task<IActionResult> Login(LoginViewModel model)
         {
+            if (!ModelState.IsValid) return View("Index", model);
+            
             try
             {
                 var user = await _authenticationService.LoginAsync(model.Username, model.Password);
 
                 return RedirectToAction("Index", "Profiles");
             }
+            catch (UserNotFoundException e)
+            {
+                ModelState.AddModelError("", e.Message);
+            }
             catch (AuthenticationException e)
             {
                 ModelState.AddModelError("", e.Message);
-
-                return View("Index", model);
             }
+
+            return View("Index", model);
         }
 
         [HttpGet]
+        [Route("Logout")]
         public async Task<IActionResult> Logout()
         {
             await HttpContext.SignOutAsync();

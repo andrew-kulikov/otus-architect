@@ -7,6 +7,7 @@ using Bogus;
 using Microsoft.Extensions.Options;
 using MoreLinq;
 using SocialNetwork.Core.Entities;
+using SocialNetwork.Core.Repositories;
 using SocialNetwork.Core.Services;
 using SocialNetwork.Infrastructure.Configuration;
 using SocialNetwork.Infrastructure.MySQL;
@@ -32,14 +33,16 @@ namespace SocialNetwork.UserGenerator
             };
 
             var connectionFactory = new SqlConnectionFactory(new OptionsWrapper<ConnectionStrings>(connectionStrings));
-            var userRepository = new UserRepository(connectionFactory);
-            var userProfileRepository = new UserProfileRepository(connectionFactory);
-            var authenticationService = new AuthenticationService(userRepository, new MockSignInManager());
+            var dbContext = new DbContext(connectionFactory);
+            var unitOfWork = new UnitOfWork(dbContext);
+            var userRepository = new UserRepository(dbContext);
+            var userProfileRepository = new UserProfileRepository(dbContext);
+            var authenticationService = new AuthenticationService(userRepository, new MockSignInManager(), unitOfWork);
 
             var fakeProfile = new Faker<UserProfile>()
                 .RuleFor(u => u.FirstName, (f, u) => f.Name.FirstName())
                 .RuleFor(u => u.LastName, (f, u) => f.Name.LastName())
-                .RuleFor(u => u.Age, (f, u) => f.Random.Int())
+                .RuleFor(u => u.Age, (f, u) => f.Random.Int(12, 95))
                 .RuleFor(u => u.City, (f, u) => f.Address.City())
                 .RuleFor(u => u.Interests, (f, u) => f.Lorem.Sentence());
 
@@ -56,35 +59,65 @@ namespace SocialNetwork.UserGenerator
                 .RuleFor(u => u.Email, (f, u) => f.Internet.Email(u.Profile.FirstName, u.Profile.LastName))
                 .RuleFor(u => u.RegisteredAt, (f, u) => f.Date.Past());
 
-            var users = fakeUser.Generate(1_000_000);
-
             var sw = new Stopwatch();
             sw.Start();
 
-            var tasks = users.Batch(5000)
-                .Select(usersBatch => RegisterBatchAsync(usersBatch, userProfileRepository, authenticationService));
+            var users = fakeUser.Generate(1_000_000);
+
+            sw.Stop();
+            Console.WriteLine($"Generation took: {sw.Elapsed}");
+
+            sw.Restart();
+
+            var tasks = users.Batch(500)
+                .Select(async usersBatch => await RegisterBatchAsync(usersBatch.ToList(), userProfileRepository, authenticationService, unitOfWork));
 
             await Task.WhenAll(tasks);
+
+            dbContext.Dispose();
 
             sw.Stop();
             Console.WriteLine($"Elapsed: {sw.Elapsed}");
         }
 
         public static async Task RegisterBatchAsync(
-            IEnumerable<User> usersBatch,
+            List<User> usersBatch,
             UserProfileRepository userProfileRepository,
-            AuthenticationService authenticationService)
+            AuthenticationService authenticationService,
+            IUnitOfWork unitOfWork)
         {
             var sw = new Stopwatch();
             sw.Start();
 
             foreach (var user in usersBatch)
             {
-                Console.WriteLine($"Processing user #{user.Id}");
-
+                if (user.Id % 1000 == 0)
+                {
+                    Console.WriteLine($"Processing user #{user.Id}");
+                }
+                
                 await authenticationService.RegisterAsync(user, user.PasswordHash);
+            }
+
+            Console.WriteLine("Beginning transaction...");
+
+            await unitOfWork.CommitAsync();
+
+            Console.WriteLine($"Users committed {usersBatch.First().Id}. Elapsed: {sw.Elapsed}");
+
+            foreach (var user in usersBatch)
+            {
+                if (user.Id % 1000 == 0)
+                {
+                    Console.WriteLine($"Processing UserProfile #{user.Id}");
+                }
+
                 await userProfileRepository.AddUserProfileAsync(user, user.Profile);
             }
+
+            Console.WriteLine("Beginning transaction...");
+
+            await unitOfWork.CommitAsync();
 
             sw.Stop();
             Console.WriteLine($"Batch {usersBatch.First().Id}. Elapsed: {sw.Elapsed}");

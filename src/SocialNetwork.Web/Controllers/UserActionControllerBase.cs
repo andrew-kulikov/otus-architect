@@ -23,6 +23,10 @@ namespace SocialNetwork.Web.Controllers
             }
 
             await base.OnActionExecutionAsync(context, next);
+
+            context.HttpContext.Response.Headers.Add("Cache-Control", "no-cache, no-store, must-revalidate");
+            context.HttpContext.Response.Headers.Add("Pragma", "no-cache");
+            context.HttpContext.Response.Headers.Add("Expires", "0");
         }
     }
 }

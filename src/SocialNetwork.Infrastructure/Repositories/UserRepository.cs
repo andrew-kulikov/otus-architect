@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
 using SocialNetwork.Core.Entities;
+using SocialNetwork.Core.Exceptions;
 using SocialNetwork.Core.Repositories;
 using SocialNetwork.Infrastructure.MySQL;
 
@@ -36,7 +37,7 @@ namespace SocialNetwork.Infrastructure.Repositories
                     new {Username = username},
                     splitOn: "UserId");
 
-                return users.First();
+                return users.FirstOrDefault() ?? throw new UserNotFoundException();
             });
         }
 

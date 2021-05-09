@@ -29,12 +29,12 @@ namespace SocialNetwork.Core.Services
             user.RegisteredAt = DateTime.UtcNow;
 
             await _userRepository.AddUserAsync(user);
-            await _unitOfWork.CommitAsync();
+            //await _unitOfWork.CommitAsync();
         }
 
         public async Task<User> LoginAsync(string username, string password)
         {
-            var user = await GetUser(username);
+            var user = await _userRepository.GetUserAsync(username);
 
             var verificationResult = new PasswordHasher<User>().VerifyHashedPassword(user, user.PasswordHash, password);
             if (verificationResult != PasswordVerificationResult.Success) throw new AuthenticationException("Invalid password");
@@ -42,18 +42,6 @@ namespace SocialNetwork.Core.Services
             await _signInManager.SignInAsync(user);
 
             return user;
-        }
-
-        private async Task<User> GetUser(string username)
-        {
-            try
-            {
-                return await _userRepository.GetUserAsync(username);
-            }
-            catch (Exception e)
-            {
-                throw new AuthenticationException("User not found");
-            }
         }
     }
 }

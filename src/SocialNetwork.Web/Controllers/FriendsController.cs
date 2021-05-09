@@ -6,17 +6,18 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SocialNetwork.Core.Entities;
 using SocialNetwork.Core.Services;
+using SocialNetwork.Core.Utils;
 using SocialNetwork.Web.Utils;
 using SocialNetwork.Web.ViewModels;
 
 namespace SocialNetwork.Web.Controllers
 {
     [Authorize]
-    public class FriendsController : Controller
+    public class FriendsController : UserActionControllerBase
     {
         private readonly IFriendshipService _friendshipService;
 
-        public FriendsController(IFriendshipService friendshipService)
+        public FriendsController(IUserContext userContext, IFriendshipService friendshipService) : base(userContext)
         {
             _friendshipService = friendshipService;
         }
