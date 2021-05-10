@@ -37,7 +37,7 @@ namespace SocialNetwork.Infrastructure.Repositories
                     new {Username = username},
                     splitOn: "UserId");
 
-                return users.FirstOrDefault() ?? throw new UserNotFoundException();
+                return users.FirstOrDefault();
             });
         }
 

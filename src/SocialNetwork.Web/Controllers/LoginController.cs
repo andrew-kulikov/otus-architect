@@ -33,13 +33,9 @@ namespace SocialNetwork.Web.Controllers
             
             try
             {
-                var user = await _authenticationService.LoginAsync(model.Username, model.Password);
+                await _authenticationService.LoginAsync(model.Username, model.Password);
 
                 return RedirectToAction("Index", "Profiles");
-            }
-            catch (UserNotFoundException e)
-            {
-                ModelState.AddModelError("", e.Message);
             }
             catch (AuthenticationException e)
             {

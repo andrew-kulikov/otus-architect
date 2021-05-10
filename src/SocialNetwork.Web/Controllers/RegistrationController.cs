@@ -42,11 +42,7 @@ namespace SocialNetwork.Web.Controllers
         {
             if (!ModelState.IsValid) return View("Index", model);
 
-            var createdUser = new User
-            {
-                Email = model.Email,
-                Username = model.Username
-            };
+            var createdUser = new User {Email = model.Email, Username = model.Username };
 
             try
             {
@@ -55,10 +51,15 @@ namespace SocialNetwork.Web.Controllers
 
                 return RedirectToAction("CreateProfile");
             }
+            catch (AuthenticationException e)
+            {
+                ModelState.AddModelError("", e.Message);
+            }
             catch (UserNotFoundException e)
             {
                 ModelState.AddModelError("", e.Message);
             }
+
 
             return View("Index", model);
         }
