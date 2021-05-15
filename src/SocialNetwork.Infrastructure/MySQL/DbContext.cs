@@ -41,7 +41,7 @@ namespace SocialNetwork.Infrastructure.MySQL
 
             await using (var transaction = await _connection.BeginTransactionAsync())
             {
-                var commandTasks = _commands.Select(c => c(_connection));
+                var commandTasks = _commands.Select(c => c(_connection)).ToList();
 
                 await Task.WhenAll(commandTasks);
 

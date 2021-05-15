@@ -14,5 +14,13 @@ services:
       - '3306'
     volumes:
       - my-db:/var/lib/mysql
+    deploy:
+        resources:
+            limits:
+              cpus: 6
+              memory: 6G
+            reservations:
+              cpus: 1
+              memory: 512M
 volumes:
   my-db:

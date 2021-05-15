@@ -33,11 +33,7 @@ namespace SocialNetwork.UserGenerator
             };
 
             var connectionFactory = new SqlConnectionFactory(new OptionsWrapper<ConnectionStrings>(connectionStrings));
-            var dbContext = new DbContext(connectionFactory);
-            var unitOfWork = new UnitOfWork(dbContext);
-            var userRepository = new UserRepository(dbContext);
-            var userProfileRepository = new UserProfileRepository(dbContext);
-            var authenticationService = new AuthenticationService(userRepository, new MockSignInManager(), unitOfWork);
+            
 
             var fakeProfile = new Faker<UserProfile>()
                 .RuleFor(u => u.FirstName, (f, u) => f.Name.FirstName())
@@ -59,68 +55,92 @@ namespace SocialNetwork.UserGenerator
                 .RuleFor(u => u.Email, (f, u) => f.Internet.Email(u.Profile.FirstName, u.Profile.LastName))
                 .RuleFor(u => u.RegisteredAt, (f, u) => f.Date.Past());
 
-            var sw = new Stopwatch();
-            sw.Start();
+            var users = fakeUser.Generate(1000000);
 
-            var users = fakeUser.Generate(1_000_000);
+            Parallel.ForEach(
+                users.Batch(500),
+                async usersBatch => await RegisterUsersBatchAsync(usersBatch.ToList(), connectionFactory));
 
-            sw.Stop();
-            Console.WriteLine($"Generation took: {sw.Elapsed}");
+            Console.WriteLine("Start users relink...");
+            users = await RelinkUsers(users, connectionFactory);
+            Console.WriteLine("End users relink...");
 
-            sw.Restart();
-
-            var tasks = users.Batch(500)
-                .Select(async usersBatch => await RegisterBatchAsync(usersBatch.ToList(), userProfileRepository, authenticationService, unitOfWork));
-
-            await Task.WhenAll(tasks);
-
-            dbContext.Dispose();
-
-            sw.Stop();
-            Console.WriteLine($"Elapsed: {sw.Elapsed}");
+            Parallel.ForEach(
+                users.Batch(500),
+                async usersBatch => await RegisterProfilesBatchAsync(usersBatch.ToList(), connectionFactory));
         }
 
-        public static async Task RegisterBatchAsync(
-            List<User> usersBatch,
-            UserProfileRepository userProfileRepository,
-            AuthenticationService authenticationService,
-            IUnitOfWork unitOfWork)
+        private static async Task<List<User>> RelinkUsers(List<User> users, SqlConnectionFactory connectionFactory)
         {
+            var dbContext = new DbContext(connectionFactory);
+            var userRepository = new UserRepository(dbContext);
+
+            var savedUsers = await userRepository.GetAllUsersAsync();
+            var generatedUsersByUsername = users.ToDictionary(u => (u.Username, u.Email, u.PasswordHash), u => u);
+
+            return savedUsers.Select(user =>
+            {
+                var generatedUser = generatedUsersByUsername[(user.Username, user.Email, user.PasswordHash)];
+                user.Profile = generatedUser.Profile;
+                user.Profile.UserId = user.Id;
+                if (user.Id % 1000 == 0) Console.WriteLine($"Relinking user {user.Id}");
+                return user;
+            }).ToList();
+        }
+
+        public static async Task RegisterUsersBatchAsync(List<User> usersBatch, SqlConnectionFactory connectionFactory)
+        {
+            var dbContext = new DbContext(connectionFactory);
+            var unitOfWork = new UnitOfWork(dbContext);
+            var userRepository = new UserRepository(dbContext);
+
             var sw = new Stopwatch();
             sw.Start();
 
-            foreach (var user in usersBatch)
-            {
-                if (user.Id % 1000 == 0)
-                {
-                    Console.WriteLine($"Processing user #{user.Id}");
-                }
-                
-                await authenticationService.RegisterAsync(user, user.PasswordHash);
-            }
+            foreach (var user in usersBatch) await userRepository.AddUserAsync(user);
+            
+            Console.WriteLine($"Commiting users {usersBatch.First().Id}...");
 
-            Console.WriteLine("Beginning transaction...");
-
-            await unitOfWork.CommitAsync();
-
-            Console.WriteLine($"Users committed {usersBatch.First().Id}. Elapsed: {sw.Elapsed}");
-
-            foreach (var user in usersBatch)
-            {
-                if (user.Id % 1000 == 0)
-                {
-                    Console.WriteLine($"Processing UserProfile #{user.Id}");
-                }
-
-                await userProfileRepository.AddUserProfileAsync(user, user.Profile);
-            }
-
-            Console.WriteLine("Beginning transaction...");
-
-            await unitOfWork.CommitAsync();
+            await CommitWithRetriesAsync(unitOfWork);
 
             sw.Stop();
             Console.WriteLine($"Batch {usersBatch.First().Id}. Elapsed: {sw.Elapsed}");
+        }
+
+        public static async Task RegisterProfilesBatchAsync(List<User> usersBatch, SqlConnectionFactory connectionFactory)
+        {
+            var dbContext = new DbContext(connectionFactory);
+            var unitOfWork = new UnitOfWork(dbContext);
+            var userProfileRepository = new UserProfileRepository(dbContext);
+
+            var sw = new Stopwatch();
+            sw.Start();
+
+            foreach (var user in usersBatch) await userProfileRepository.AddUserProfileAsync(user, user.Profile);
+
+            Console.WriteLine($"Commiting profiles {usersBatch.First().Id}...");
+
+            await CommitWithRetriesAsync(unitOfWork);
+
+            sw.Stop();
+            Console.WriteLine($"Batch {usersBatch.First().Id}. Elapsed: {sw.Elapsed}");
+        }
+
+        private static async Task CommitWithRetriesAsync(UnitOfWork unitOfWork, int retryCount = 3)
+        {
+            try
+            {
+                await unitOfWork.CommitAsync();
+                await unitOfWork.DisposeAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"Retries: {retryCount}, Error: {e}");
+                if (retryCount <= 0) throw;
+
+                await Task.Delay(1000);
+                await CommitWithRetriesAsync(unitOfWork, retryCount);
+            }
         }
     }
 }
