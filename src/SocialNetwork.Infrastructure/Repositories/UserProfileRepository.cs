@@ -26,9 +26,9 @@ namespace SocialNetwork.Infrastructure.Repositories
             await _dbContext.AddCommandAsync(connection => connection.ExecuteAsync(sql, userProfile));
         }
 
-        public async Task<ICollection<UserProfile>> GetAllUserProfilesAsync()
+        public async Task<ICollection<UserProfile>> GetAllUserProfilesAsync(int page, int pageSize)
         {
-            const string sql = @"select * from UserProfile";
+            var sql = @$"select * from UserProfile limit {pageSize} offset {page * pageSize}";
 
             return await _dbContext.ExecuteQueryAsync(async connection =>
             {

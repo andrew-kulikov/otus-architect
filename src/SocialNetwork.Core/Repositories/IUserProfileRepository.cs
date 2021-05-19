@@ -7,7 +7,7 @@ namespace SocialNetwork.Core.Repositories
     public interface IUserProfileRepository
     {
         Task AddUserProfileAsync(User user, UserProfile userProfile);
-        Task<ICollection<UserProfile>> GetAllUserProfilesAsync();
+        Task<ICollection<UserProfile>> GetAllUserProfilesAsync(int page, int pageSize);
         Task<UserProfile> GetUserProfileAsync(long userId);
     }
 }

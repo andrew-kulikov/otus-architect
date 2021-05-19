@@ -30,9 +30,11 @@ namespace SocialNetwork.Web.Controllers
             _friendshipService = friendshipService;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int page, int pageSize)
         {
-            var allProfiles = await _userProfileRepository.GetAllUserProfilesAsync();
+            (page, pageSize) = ValidatePage(page, pageSize);
+
+            var allProfiles = await _userProfileRepository.GetAllUserProfilesAsync(page, pageSize);
             var otherProfiles = allProfiles.Where(p => p.UserId != UserContext.CurrentUser.Id).ToList();
 
             return View(otherProfiles);
@@ -49,6 +51,16 @@ namespace SocialNetwork.Web.Controllers
             var friendship = await _friendshipService.GetFriendshipAsync(User.GetUserId(), userId);
 
             return View(BuildProfileViewModel(userProfile, friendship));
+        }
+
+        private (int page, int pageSize) ValidatePage(int page, int pageSize)
+        {
+            const int defaultPageSize = 50;
+
+            if (page <= 0) page = 0;
+            if (pageSize <= 0 || pageSize > 200) pageSize = defaultPageSize;
+
+            return (page, pageSize);
         }
 
         private UserProfileViewModel BuildProfileViewModel(UserProfile userProfile, Friendship friendship)
