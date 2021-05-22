@@ -1,0 +1,27 @@
+﻿@model ICollection<SocialNetwork.Core.Entities.UserProfile>
+
+@{
+    Layout = "../_Layout";
+    ViewBag.Title = "Profiles";
+}
+
+<div class="search-field">
+    <form asp-controller="Profiles" asp-action="Search" method="get">
+        <input type="text" name="query" />
+    </form>
+</div>
+
+
+<div class="profiles-container">
+    @foreach (var profile in Model)
+    {
+        <div class="card user-card" style="width: 18rem;">
+            <div class="card-body">
+                <h5 class="card-title">@profile.FirstName @profile.LastName</h5>
+                <h6 class="card-subtitle mb-2 text-muted">City: @profile.City, Age: @profile.Age</h6>
+                <p class="card-text">@profile.Interests</p>
+                <a class="card-link" asp-controller="Profiles" asp-action="Profile" asp-route-userId="@profile.UserId">Go to profile</a>
+            </div>
+        </div>
+    }
+</div>

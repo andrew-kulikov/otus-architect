@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
@@ -35,9 +36,17 @@ namespace SocialNetwork.Web.Controllers
             (page, pageSize) = ValidatePage(page, pageSize);
 
             var allProfiles = await _userProfileRepository.GetAllUserProfilesAsync(page, pageSize);
-            var otherProfiles = allProfiles.Where(p => p.UserId != UserContext.CurrentUser.Id).ToList();
 
-            return View(otherProfiles);
+            return View(FilterOtherUsers(allProfiles));
+        }
+
+        public async Task<IActionResult> Search(string query)
+        {
+            var allProfiles = string.IsNullOrEmpty(query) 
+                ? new List<UserProfile>() 
+                : await _userProfileRepository.SearchUserProfilesAsync(query);
+
+            return View(FilterOtherUsers(allProfiles));
         }
 
         public IActionResult My()
@@ -52,6 +61,9 @@ namespace SocialNetwork.Web.Controllers
 
             return View(BuildProfileViewModel(userProfile, friendship));
         }
+
+        private ICollection<UserProfile> FilterOtherUsers(ICollection<UserProfile> profiles) =>
+            profiles.Where(p => p.UserId != UserContext.CurrentUser.Id).ToList();
 
         private (int page, int pageSize) ValidatePage(int page, int pageSize)
         {

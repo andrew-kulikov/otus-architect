@@ -38,6 +38,20 @@ namespace SocialNetwork.Infrastructure.Repositories
             });
         }
 
+        public async Task<ICollection<UserProfile>> SearchUserProfilesAsync(string query)
+        {
+            const string sql = @"select * from UserProfile 
+                                 where FirstName collate utf8_general_ci like @Query and LastName like @Query";
+
+            return await _dbContext.ExecuteQueryAsync(async connection =>
+            {
+                var encodedQuery = query.Replace("[", "[[]").Replace("%", "[%]") + '%';
+                var profiles = await connection.QueryAsync<UserProfile>(sql, new { Query = encodedQuery });
+
+                return profiles.ToList();
+            });
+        }
+
         public async Task<UserProfile> GetUserProfileAsync(long userId)
         {
             const string sql =
