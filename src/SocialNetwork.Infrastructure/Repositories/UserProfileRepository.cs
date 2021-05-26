@@ -40,8 +40,7 @@ namespace SocialNetwork.Infrastructure.Repositories
 
         public async Task<ICollection<UserProfile>> SearchUserProfilesAsync(string query)
         {
-            const string sql = @"select * from UserProfile 
-                                 where FirstName collate utf8_general_ci like @Query and LastName like @Query";
+            const string sql = @"select * from UserProfile where FirstName like @Query and LastName like @Query";
 
             return await _dbContext.ExecuteQueryAsync(async connection =>
             {
@@ -51,6 +50,21 @@ namespace SocialNetwork.Infrastructure.Repositories
                 return profiles.ToList();
             });
         }
+
+        //public async Task<ICollection<UserProfile>> SearchUserProfilesAsync(string query)
+        //{
+        //    const string sql = @"select * from UserProfile 
+        //                         WHERE MATCH(FirstName) AGAINST(@Query in boolean mode) and
+        //                               MATCH(LastName) AGAINST(@Query in boolean mode)";
+
+        //    return await _dbContext.ExecuteQueryAsync(async connection =>
+        //    {
+        //        var encodedQuery = $"+{query}*";
+        //        var profiles = await connection.QueryAsync<UserProfile>(sql, new { Query = encodedQuery });
+
+        //        return profiles.ToList();
+        //    });
+        //}
 
         public async Task<UserProfile> GetUserProfileAsync(long userId)
         {
