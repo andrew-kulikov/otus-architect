@@ -1,7 +1,7 @@
 version: '3.3'
 services:
   db:
-    image: mysql:5.7
+    image: mysql:8.0
     restart: always
     environment:
       MYSQL_DATABASE: 'db'
@@ -14,13 +14,5 @@ services:
       - '3306'
     volumes:
       - my-db:/var/lib/mysql
-    deploy:
-        resources:
-            limits:
-              cpus: 6
-              memory: 6G
-            reservations:
-              cpus: 1
-              memory: 512M
 volumes:
   my-db:

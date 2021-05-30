@@ -38,9 +38,11 @@ namespace SocialNetwork.Infrastructure.Repositories
             });
         }
 
-        public async Task<ICollection<UserProfile>> SearchUserProfilesAsync(string query)
+        public async Task<ICollection<UserProfile>> SearchUserProfilesAsync(string query, int page, int pageSize)
         {
-            const string sql = @"select * from UserProfile where FirstName like @Query and LastName like @Query";
+            var sql = @$"select * from UserProfile 
+                         where FirstName like @Query and LastName like @Query
+                         limit {pageSize} offset {page * pageSize}";
 
             return await _dbContext.ExecuteQueryAsync(async connection =>
             {
@@ -51,27 +53,9 @@ namespace SocialNetwork.Infrastructure.Repositories
             });
         }
 
-        //public async Task<ICollection<UserProfile>> SearchUserProfilesAsync(string query)
-        //{
-        //    const string sql = @"select * from UserProfile 
-        //                         WHERE MATCH(FirstName) AGAINST(@Query in boolean mode) and
-        //                               MATCH(LastName) AGAINST(@Query in boolean mode)";
-
-        //    return await _dbContext.ExecuteQueryAsync(async connection =>
-        //    {
-        //        var encodedQuery = $"+{query}*";
-        //        var profiles = await connection.QueryAsync<UserProfile>(sql, new { Query = encodedQuery });
-
-        //        return profiles.ToList();
-        //    });
-        //}
-
         public async Task<UserProfile> GetUserProfileAsync(long userId)
         {
-            const string sql =
-                @"select * 
-                  from UserProfile
-                  where UserId = @UserId";
+            const string sql = @"select * from UserProfile where UserId = @UserId";
 
             return await _dbContext.ExecuteQueryAsync(async connection =>
             {

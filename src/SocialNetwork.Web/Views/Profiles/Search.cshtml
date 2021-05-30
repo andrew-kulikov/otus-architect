@@ -1,4 +1,4 @@
-﻿@model ICollection<SocialNetwork.Core.Entities.UserProfile>
+﻿@model SocialNetwork.Web.ViewModels.UserProfilesSearchViewModel
 
 @{
     Layout = "../_Layout";
@@ -13,7 +13,7 @@
 
 
 <div class="profiles-container">
-    @foreach (var profile in Model)
+    @foreach (var profile in Model.Profiles)
     {
         <div class="card user-card" style="width: 18rem;">
             <div class="card-body">
@@ -25,3 +25,16 @@
         </div>
     }
 </div>
+
+<nav aria-label="Page navigation example">
+    <ul class="pagination">
+        <li class="page-item">
+            <a class="page-link @(Model.Page == 0 ? "disabled" : "")" href="@Url.Action("Search", new { query = Model.Query, page = Model.Page - 1, pageSize = Model.PageSize})">
+                Previous
+            </a>
+        </li>
+        <li class="page-item">
+            <a class="page-link" href="@Url.Action("Search", new { query = Model.Query, page = Model.Page + 1, pageSize = Model.PageSize})">Next</a>
+        </li>
+    </ul>
+</nav>

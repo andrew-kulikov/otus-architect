@@ -9,6 +9,9 @@ CREATE TABLE IF NOT EXISTS `User` (
     `PasswordHash` NVARCHAR(255) NOT NULL, 
     `RegisteredAt` DATETIME NOT NULL, 
     CONSTRAINT `PK_User` PRIMARY KEY (`Id`)) ENGINE = INNODB;
+
+alter table User add index idx_username (Username);
+
     
 CREATE TABLE IF NOT EXISTS  `UserProfile` (
 	`UserId` BIGINT NOT NULL, 
@@ -21,6 +24,9 @@ CREATE TABLE IF NOT EXISTS  `UserProfile` (
     CONSTRAINT `FK_UserProfile_UserId_User_Id` 
 		FOREIGN KEY (`UserId`) 
         REFERENCES `User` (`Id`)) ENGINE = INNODB;
+
+alter table UserProfile add index idx_first_last_name (LastName(5), FirstName(7));
+
 
 CREATE TABLE IF NOT EXISTS Friendship ( 
     `RequesterId` BIGINT NOT NULL,

@@ -36,17 +36,33 @@ namespace SocialNetwork.Web.Controllers
             (page, pageSize) = ValidatePage(page, pageSize);
 
             var allProfiles = await _userProfileRepository.GetAllUserProfilesAsync(page, pageSize);
+            var profiles = FilterOtherUsers(allProfiles);
 
-            return View(FilterOtherUsers(allProfiles));
+            return View(new UserProfilesViewModel
+            {
+                Page = page,
+                PageSize = pageSize,
+                Profiles = profiles
+            });
         }
 
-        public async Task<IActionResult> Search(string query)
+        public async Task<IActionResult> Search(string query, int page, int pageSize)
         {
+            (page, pageSize) = ValidatePage(page, pageSize);
+
             var allProfiles = string.IsNullOrEmpty(query) 
                 ? new List<UserProfile>() 
-                : await _userProfileRepository.SearchUserProfilesAsync(query);
+                : await _userProfileRepository.SearchUserProfilesAsync(query, page, pageSize);
 
-            return View(FilterOtherUsers(allProfiles));
+            var profiles = FilterOtherUsers(allProfiles);
+
+            return View(new UserProfilesSearchViewModel
+            {
+                Query = query,
+                Page = page,
+                PageSize = pageSize,
+                Profiles = profiles
+            });
         }
 
         public IActionResult My()
@@ -67,10 +83,10 @@ namespace SocialNetwork.Web.Controllers
 
         private (int page, int pageSize) ValidatePage(int page, int pageSize)
         {
-            const int defaultPageSize = 50;
+            const int defaultPageSize = 30;
 
             if (page <= 0) page = 0;
-            if (pageSize <= 0 || pageSize > 200) pageSize = defaultPageSize;
+            if (pageSize <= 0 || pageSize > 100) pageSize = defaultPageSize;
 
             return (page, pageSize);
         }
