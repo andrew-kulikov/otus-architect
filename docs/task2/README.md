@@ -25,13 +25,13 @@ Cоздать набор тестовых данных для проведени
 
 1. Для генерации была использована библиотека [Bogus](https://github.com/bchavez/Bogus). Имена, фамилии, почты и адреса реальные и репрезентативные. Пример сгенерированных пользователей:
 ```
-UserId FirstName LastName Age Interests City
-1	Anabelle	Fisher	53	Veniam debitis deserunt a iure quasi.	Ericfurt
-2	Reta	Gaylord	48	Veniam est commodi molestias atque ratione accusamus.	Lake Tracey
-3	Rowland	Bergnaum	26	Non ducimus praesentium et aut corrupti odit totam ut quae.	North Jalon
-4	Rene	Rodriguez	84	Aut eius aut laboriosam aut iusto.	West Burdetteview
-5	Theo	Kling	93	Quis nihil voluptas ad consequuntur sit ad voluptatibus ratione.	Lake Kayla
-6	Sonia	Haag	35	Et quod laudantium necessitatibus id.	New Rosendo
+UserId FirstName LastName  Age  Interests                                                           City
+1	   Anabelle	 Fisher	   53	Veniam debitis deserunt a iure quasi.	                            Ericfurt
+2	   Reta	     Gaylord   48	Veniam est commodi molestias atque ratione accusamus.	            Lake Tracey
+3	   Rowland	 Bergnaum  26	Non ducimus praesentium et aut corrupti odit totam ut quae.	        North Jalon
+4	   Rene	     Rodriguez 84	Aut eius aut laboriosam aut iusto.	                                West Burdetteview
+5	   Theo	     Kling	   93	Quis nihil voluptas ad consequuntur sit ad voluptatibus ratione.	Lake Kayla
+6	   Sonia	 Haag	   35	Et quod laudantium necessitatibus id.	                            New Rosendo
 ```
 Скрипт для генерации пользователей [здесь](../../src/SocialNetwork.UserGenerator/Program.cs).  
 
