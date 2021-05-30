@@ -1,5 +1,4 @@
 ## Задание
----
 
 Cоздать набор тестовых данных для проведения нагрузочного тестирования. Подобрать наиболее подходящие индексы и провести тесты производительности.
 
@@ -21,7 +20,6 @@ Cоздать набор тестовых данных для проведени
 
 
 ## Результат
----
 
 1. Для генерации была использована библиотека [Bogus](https://github.com/bchavez/Bogus). Имена, фамилии, почты и адреса реальные и репрезентативные. Пример сгенерированных пользователей:
 ```
@@ -46,7 +44,7 @@ select * from UserProfile where FirstName like '@Query%' and LastName like '@Que
 * Intel(R) Core(TM) i7 CPU 6700HQ 2.6 GHz
 * 16 GB RAM (DDR4)
 * Windows 10 Version 1909 (x64).  
-* MySQL Community Server 8.0.25 (Docker 20.10.5)
+* MySQL Community Server 8.0.25 (Docker 20.10.5)  
 Тестовый план: [social_net_test_plan](../../scripts/social_net_test_plan.jmx).  
 
 <!-- end of the list -->
