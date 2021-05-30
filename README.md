@@ -20,3 +20,4 @@ Technical requirements:
 
 Implementation notes:
 1. [Task 1](docs/task1/README.md) - Prototype. 
+2. [Task 2](docs/task2/README.md) - MySQL Indexes.
