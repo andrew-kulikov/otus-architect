@@ -17,6 +17,18 @@ namespace SocialNetwork.Infrastructure.Repositories
             _dbContext = dbContext;
         }
 
+        public async Task<ICollection<UserPost>> GetUserPostsAsync(long userId)
+        {
+            const string sql = @"select * from UserPost where UserId = @UserId;";
+
+            return await _dbContext.ExecuteQueryAsync(async connection =>
+            {
+                var result = await connection.QueryAsync<UserPost>(sql, new {UserId = userId});
+
+                return result.ToList();
+            });
+        }
+
         public async Task<UserPost> GetPostAsync(long postId)
         {
             const string sql = @"select * from UserPost where Id = @PostId;";
@@ -36,7 +48,7 @@ namespace SocialNetwork.Infrastructure.Repositories
         public async Task<ICollection<UserPost>> GetNewsFeedAsync(long userId)
         {
             const string sql =
-                @"select UserPost.*
+                @"select UserPost.*, Requester.*, Addressee.*
                 from UserPost
                 join Friendship 
                 join UserProfile Requester on Requester.UserId = Friendship.RequesterId
@@ -47,15 +59,15 @@ namespace SocialNetwork.Infrastructure.Repositories
 
             return await _dbContext.ExecuteQueryAsync(async connection =>
             {
-                var result = await connection.QueryAsync<UserPost, Friendship, UserProfile, UserProfile, UserPost>(sql,
-                    (post, friendship, requester, addressee) =>
+                var result = await connection.QueryAsync<UserPost, UserProfile, UserProfile, UserPost>(sql,
+                    (post, requester, addressee) =>
                     {
-                        friendship.Requester = requester;
-                        friendship.Addressee = addressee;
+                        post.UserProfile = requester.UserId == userId ? addressee : requester;
 
                         return post;
                     },
-                    new {UserId = userId});
+                    new {UserId = userId},
+                    splitOn: "Id,UserId,UserId");
 
                 return result.ToList();
             });

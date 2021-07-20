@@ -1,0 +1,14 @@
+﻿@model SocialNetwork.Web.ViewModels.CreatePostViewModel
+
+@{
+    Layout = "../_Layout";
+    ViewBag.Title = "Create post";
+}
+
+<form method="post" asp-action="CreatePost">
+    <div>
+        <label class="sr-only" asp-for="Text">Type what you want no share with friends</label>
+        <textarea class="form-control" asp-for="Text" placeholder="Hi there!"></textarea>
+    </div>
+    <button class="btn btn-lg btn-primary btn-block" type="submit">Post!</button>
+</form>

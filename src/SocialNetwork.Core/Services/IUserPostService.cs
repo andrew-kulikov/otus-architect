@@ -7,6 +7,7 @@ namespace SocialNetwork.Core.Services
     public interface IUserPostService
     {
         Task<ICollection<UserPost>> GetNewsFeedAsync(long userId);
+        Task<ICollection<UserPost>> GetUserPostsAsync(long userId);
         Task<UserPost> GetPostAsync(long postId);
         Task AddPostAsync(string text, long userId);
     }
