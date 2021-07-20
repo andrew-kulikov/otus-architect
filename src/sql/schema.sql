@@ -3,7 +3,7 @@ CREATE DATABASE IF NOT EXISTS SocialNetwork;
 USE SocialNetwork;
 
 CREATE TABLE IF NOT EXISTS `User` (
-	`Id` BIGINT NOT NULL AUTO_INCREMENT, 
+    `Id` BIGINT NOT NULL AUTO_INCREMENT, 
     `Username` NVARCHAR(255) NOT NULL, 
     `Email` NVARCHAR(255) NOT NULL, 
     `PasswordHash` NVARCHAR(255) NOT NULL, 
@@ -14,15 +14,15 @@ alter table User add index idx_username (Username);
 
     
 CREATE TABLE IF NOT EXISTS  `UserProfile` (
-	`UserId` BIGINT NOT NULL, 
-	`FirstName` NVARCHAR(255) NOT NULL, 
-	`LastName` NVARCHAR(255) NOT NULL, 
-	`Age` INTEGER NOT NULL, 
-	`Interests` LONGTEXT CHARACTER SET utf8 NOT NULL, 
-	`City` NVARCHAR(255) NOT NULL, 
-	CONSTRAINT `PK_UserProfile` PRIMARY KEY (`UserId`),
+    `UserId` BIGINT NOT NULL, 
+    `FirstName` NVARCHAR(255) NOT NULL, 
+    `LastName` NVARCHAR(255) NOT NULL, 
+    `Age` INTEGER NOT NULL, 
+    `Interests` LONGTEXT CHARACTER SET utf8 NOT NULL, 
+    `City` NVARCHAR(255) NOT NULL, 
+    CONSTRAINT `PK_UserProfile` PRIMARY KEY (`UserId`),
     CONSTRAINT `FK_UserProfile_UserId_User_Id` 
-		FOREIGN KEY (`UserId`) 
+        FOREIGN KEY (`UserId`) 
         REFERENCES `User` (`Id`)) ENGINE = INNODB;
 
 alter table UserProfile add index idx_first_last_name (LastName(5), FirstName(7));
@@ -39,3 +39,14 @@ CREATE TABLE IF NOT EXISTS Friendship (
     CONSTRAINT FriendshipToAddressee_FK FOREIGN KEY (AddresseeId) REFERENCES UserProfile (UserId)
 ) ENGINE = INNODB;
 
+
+CREATE TABLE IF NOT EXISTS  `UserPost` (
+    `Id` BIGINT NOT NULL, 
+    `UserId` BIGINT NOT NULL, 
+    `Text` TEXT NOT NULL, 
+    `Created` DATETIME NOT NULL,
+    `Updated` DATETIME NOT NULL,
+    CONSTRAINT `PK_UserPost` PRIMARY KEY (`Id`),
+    CONSTRAINT `FK_UserPost_UserId_UserProfile_Id` 
+        FOREIGN KEY (`UserId`) 
+        REFERENCES `UserProfile` (`UserId`)) ENGINE = INNODB;

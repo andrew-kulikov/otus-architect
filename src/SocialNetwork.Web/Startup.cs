@@ -13,6 +13,7 @@ using SocialNetwork.Core.Utils;
 using SocialNetwork.Infrastructure.Configuration;
 using SocialNetwork.Infrastructure.MySQL;
 using SocialNetwork.Infrastructure.Repositories;
+using SocialNetwork.Infrastructure.Services;
 using SocialNetwork.Web.Authentication;
 
 namespace SocialNetwork.Web
@@ -58,7 +59,10 @@ namespace SocialNetwork.Web
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IUserProfileRepository, UserProfileRepository>();
             services.AddScoped<IFriendshipRepository, FriendshipRepository>();
+            services.AddScoped<IUserPostRepository, UserPostRepository>();
+
             services.AddScoped<IFriendshipService, FriendshipService>();
+            services.AddScoped<IUserPostService, UserPostService>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
