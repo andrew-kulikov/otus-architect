@@ -48,26 +48,24 @@ namespace SocialNetwork.Infrastructure.Repositories
         public async Task<ICollection<UserPost>> GetNewsFeedAsync(long userId)
         {
             const string sql =
-                @"select UserPost.*, Requester.*, Addressee.*
-                from UserPost
-                join Friendship 
-                join UserProfile Requester on Requester.UserId = Friendship.RequesterId
-                join UserProfile Addressee on Addressee.UserId = Friendship.AddresseeId
-                where (Friendship.RequesterId = @UserId and (Friendship.Status = 1 or Friendship.Status = 0)) 
-	                  or Friendship.AddresseeId = @UserId and Friendship.Status = 1
-                limit 1000;";
+                @"select UserPost.*, UserProfile.* from UserPost
+                    join UserProfile on UserPost.UserId = UserProfile.UserId
+                    join Friendship Outcoming on Outcoming.RequesterId = UserProfile.UserId
+                    join Friendship Incoming on Incoming.AddresseeId = UserProfile.UserId
+                    where (Outcoming.AddresseeId = @UserId and (Outcoming.Status = 1 or Outcoming.Status = 0)) or (Incoming.Status = 1 and Incoming.RequesterId = @UserId)
+                    limit 1000;";
 
             return await _dbContext.ExecuteQueryAsync(async connection =>
             {
-                var result = await connection.QueryAsync<UserPost, UserProfile, UserProfile, UserPost>(sql,
-                    (post, requester, addressee) =>
+                var result = await connection.QueryAsync<UserPost, UserProfile, UserPost>(sql,
+                    (post, profile) =>
                     {
-                        post.UserProfile = requester.UserId == userId ? addressee : requester;
+                        post.UserProfile = profile;
 
                         return post;
                     },
                     new {UserId = userId},
-                    splitOn: "Id,UserId,UserId");
+                    splitOn: "Id,UserId");
 
                 return result.ToList();
             });
