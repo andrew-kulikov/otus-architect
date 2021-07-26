@@ -15,6 +15,7 @@ using SocialNetwork.Infrastructure.MySQL;
 using SocialNetwork.Infrastructure.Repositories;
 using SocialNetwork.Infrastructure.Services;
 using SocialNetwork.Web.Authentication;
+using SocialNetwork.Web.Extensions;
 
 namespace SocialNetwork.Web
 {
@@ -29,6 +30,8 @@ namespace SocialNetwork.Web
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddRabbitMq(Configuration);
+
             services.AddControllersWithViews();
 
             services.AddHttpContextAccessor();

@@ -6,7 +6,7 @@ using MySql.Data.MySqlClient;
 
 namespace SocialNetwork.Infrastructure.MySQL
 {
-    public class DbContext : IAsyncDisposable
+    public class DbContext : IAsyncDisposable, IDisposable
     {
         private readonly List<Func<MySqlConnection, Task>> _commands;
         private readonly MySqlConnection _connection;
@@ -69,6 +69,11 @@ namespace SocialNetwork.Infrastructure.MySQL
         {
             await SaveChangesAsync();
             await _connection.CloseAsync();
+        }
+
+        public void Dispose()
+        {
+            DisposeAsync().GetAwaiter().GetResult();
         }
     }
 }

@@ -35,7 +35,8 @@ namespace SocialNetwork.Web.Controllers
         public async Task<IActionResult> CreatePost(CreatePostViewModel model)
         {
             await _userPostService.AddPostAsync(model.Text, HttpContext.User.GetUserId());
-            return View("Index");
+
+            return RedirectToAction("Feed");
         }
     }
 }
