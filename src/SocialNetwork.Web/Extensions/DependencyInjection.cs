@@ -39,18 +39,18 @@ namespace SocialNetwork.Web.Extensions
                 massTransitOptions.AddConsumer<PostCreatedConsumer>();
                 massTransitOptions.AddConsumer<FeedUpdateConsumer>();
 
-                massTransitOptions.AddBus(provider => Bus.Factory.CreateUsingRabbitMq(rabbitMqOptions =>
+                massTransitOptions.UsingRabbitMq((provider, rabbitMqOptions) =>
                 {
-                    var connectionOptions = RabbitMqOptions.FromConfiguration(configuration);
+                    var connectionInfo = RabbitMqOptions.FromConfiguration(configuration);
 
-                    rabbitMqOptions.Host(new Uri(connectionOptions.Uri), h =>
+                    rabbitMqOptions.Host(new Uri(connectionInfo.Uri), h =>
                     {
-                        h.Username(connectionOptions.Username);
-                        h.Password(connectionOptions.Password);
+                        h.Username(connectionInfo.Username);
+                        h.Password(connectionInfo.Password);
                     });
 
                     rabbitMqOptions.ConfigureEndpoints(provider);
-                }));
+                });
             });
 
             services.AddMassTransitHostedService();
