@@ -49,8 +49,7 @@ namespace SocialNetwork.Web.Extensions
                         h.Password(connectionOptions.Password);
                     });
 
-                    rabbitMqOptions.ReceiveEndpoint("createPost", ep => ep.ConfigureConsumer<PostCreatedConsumer>(provider));
-                    rabbitMqOptions.ReceiveEndpoint("updateFeed", ep => ep.ConfigureConsumer<FeedUpdateConsumer>(provider));
+                    rabbitMqOptions.ConfigureEndpoints(provider);
                 }));
             });
 

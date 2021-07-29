@@ -24,13 +24,13 @@ namespace SocialNetwork.Infrastructure.Consumers
 
             var subscriberBatches = friendshipRelations
                 .Where(r => r.Status == FriendshipStatus.RequestAccepted || r.Status == FriendshipStatus.RequestSent)
-                .Batch(100);
+                .Batch(1000);
 
             foreach (var subscriberBatch in subscriberBatches)
             {
                 var subscriberIds = subscriberBatch.Select(friendship => GetOtherUserId(friendship, userId)).ToList();
                 
-                await context.Send(new UpdateFeedMessage
+                await context.Publish(new UpdateFeedMessage
                 {
                     Post = context.Message.Post,
                     UserIds = subscriberIds

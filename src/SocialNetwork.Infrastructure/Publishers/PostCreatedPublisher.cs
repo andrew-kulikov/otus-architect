@@ -21,11 +21,7 @@ namespace SocialNetwork.Infrastructure.Publishers
 
         public async Task PublishAsync(PostCreatedMessage message)
         {
-            // TODO: Fix hardcoded urls
-            var uri = new Uri("rabbitmq://localhost/createPost");
-            var endPoint = await _bus.GetSendEndpoint(uri);
-
-            await endPoint.Send(message);
+            await _bus.Publish(message);
         }
     }
 }
