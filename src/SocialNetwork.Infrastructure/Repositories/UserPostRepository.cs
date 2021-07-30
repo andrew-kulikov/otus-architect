@@ -37,12 +37,14 @@ namespace SocialNetwork.Infrastructure.Repositories
                 await connection.QueryFirstOrDefaultAsync<UserPost>(sql, new {PostId = postId}));
         }
 
-        public async Task AddPostAsync(UserPost post)
+        public async Task<long> AddPostAsync(UserPost post)
         {
-            const string sql = @"insert into UserPost (UserId, Text, Created, Updated) values (@UserId, @Text, @Created, @Updated)";
+            const string sql = @"
+                insert into UserPost (UserId, Text, Created, Updated) values (@UserId, @Text, @Created, @Updated);
+                select last_insert_id();";
 
-            await _dbContext.AddCommandAsync(async connection => 
-                await connection.ExecuteAsync(sql, new {post.UserId, post.Text, post.Created, post.Updated}));
+            return await _dbContext.ExecuteQueryAsync(async connection => 
+                await connection.QueryFirstOrDefaultAsync<long>(sql, new {post.UserId, post.Text, post.Created, post.Updated}));
         }
 
         public async Task<ICollection<UserPost>> GetNewsFeedAsync(long userId)

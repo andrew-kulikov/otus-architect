@@ -45,8 +45,7 @@ namespace SocialNetwork.Infrastructure.Services
             };
 
             // TODO: Return new post with id
-            await _repository.AddPostAsync(post);
-            await _unitOfWork.CommitAsync();
+            post.Id = await _repository.AddPostAsync(post);
 
             await _publisher.PublishAsync(new PostCreatedMessage
             {
