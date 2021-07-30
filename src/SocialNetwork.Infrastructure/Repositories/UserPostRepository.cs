@@ -31,10 +31,25 @@ namespace SocialNetwork.Infrastructure.Repositories
 
         public async Task<UserPost> GetPostAsync(long postId)
         {
-            const string sql = @"select * from UserPost where Id = @PostId;";
+            const string sql = @"
+                select * from UserPost
+                join UserProfile on UserPost.UserId = UserProfile.UserId
+                where Id = @PostId;";
 
             return await _dbContext.ExecuteQueryAsync(async connection =>
-                await connection.QueryFirstOrDefaultAsync<UserPost>(sql, new {PostId = postId}));
+            {
+                var result = await connection.QueryAsync<UserPost, UserProfile, UserPost>(sql,
+                    (post, profile) =>
+                    {
+                        post.UserProfile = profile;
+
+                        return post;
+                    },
+                    new {PostId = postId},
+                    splitOn: "Id,UserId");
+
+                return result.FirstOrDefault();
+            });
         }
 
         public async Task<long> AddPostAsync(UserPost post)

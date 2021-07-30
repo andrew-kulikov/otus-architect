@@ -10,12 +10,16 @@ using Microsoft.Extensions.Hosting;
 using SocialNetwork.Core.Repositories;
 using SocialNetwork.Core.Services;
 using SocialNetwork.Core.Utils;
+using SocialNetwork.Infrastructure.Caching;
 using SocialNetwork.Infrastructure.Configuration;
+using SocialNetwork.Infrastructure.Consumers;
 using SocialNetwork.Infrastructure.MySQL;
 using SocialNetwork.Infrastructure.Repositories;
 using SocialNetwork.Infrastructure.Services;
 using SocialNetwork.Web.Authentication;
 using SocialNetwork.Web.Extensions;
+using StackExchange.Redis.Extensions.Core.Configuration;
+using StackExchange.Redis.Extensions.MsgPack;
 
 namespace SocialNetwork.Web
 {
@@ -32,6 +36,16 @@ namespace SocialNetwork.Web
         {
             services.AddRabbitMq(Configuration);
 
+            services.AddStackExchangeRedisExtensions<MsgPackObjectSerializer>(new RedisConfiguration
+            {
+                ConnectionString = Configuration.GetValue<string>("Redis:ConnectionString")
+            });
+
+            services.AddStackExchangeRedisCache(options =>
+            {
+                options.Configuration = $"{Configuration.GetValue<string>("Redis:Server")}:{Configuration.GetValue<int>("Redis:Port")}";
+            });
+
             services.AddControllersWithViews();
 
             services.AddHttpContextAccessor();
@@ -46,8 +60,7 @@ namespace SocialNetwork.Web
                     };
                 });
 
-            services.AddOptions<ConnectionStrings>()
-                .Bind(Configuration.GetSection("ConnectionStrings"));
+            services.AddOptions<ConnectionStrings>().Bind(Configuration.GetSection("ConnectionStrings"));
 
             services.AddAutoMapper(typeof(Startup).Assembly);
 
@@ -66,6 +79,8 @@ namespace SocialNetwork.Web
 
             services.AddScoped<IFriendshipService, FriendshipService>();
             services.AddScoped<IUserPostService, UserPostService>();
+
+            services.AddScoped(typeof(IListCache<>), typeof(RedisListCache<>));
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
