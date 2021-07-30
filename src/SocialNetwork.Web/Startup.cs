@@ -41,11 +41,6 @@ namespace SocialNetwork.Web
                 ConnectionString = Configuration.GetValue<string>("Redis:ConnectionString")
             });
 
-            services.AddStackExchangeRedisCache(options =>
-            {
-                options.Configuration = $"{Configuration.GetValue<string>("Redis:Server")}:{Configuration.GetValue<int>("Redis:Port")}";
-            });
-
             services.AddControllersWithViews();
 
             services.AddHttpContextAccessor();
