@@ -1,6 +1,7 @@
-version: '3.3'
+version: '3.9'
 services:
   db:
+    container_name: mysql_8.0
     image: mysql:8.0
     restart: always
     environment:
@@ -14,5 +15,17 @@ services:
       - '3306'
     volumes:
       - my-db:/var/lib/mysql
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: 'rabbitmq'
+    ports:
+        - 5672:5672
+        - 15672:15672
+        - 5040:5040
+    volumes:
+        - rabbitmq-data:/var/lib/rabbitmq
+        - rabbitmq-log:/var/log/rabbitmq
 volumes:
   my-db:
+  rabbitmq-data:
+  rabbitmq-log:
