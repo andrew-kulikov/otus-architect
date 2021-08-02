@@ -5,12 +5,14 @@
     ViewBag.Title = "News";
 }
 
-<div class="feed-posts">
+<div class="feed-posts-container">
     @foreach (var post in Model)
     {
-        <div class="feed-post">
-            <div>@post.UserProfile.FirstName @post.UserProfile.LastName</div>
-            <div>@post.Text</div>
+        <div class="card feed-post">
+            <div class="card-header">
+                <h4>@post.UserProfile?.FirstName @post.UserProfile?.LastName</h4>
+            </div>
+            <div class="card-body">@post.Text</div>
         </div>
     }
 </div>

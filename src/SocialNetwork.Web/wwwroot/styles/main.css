@@ -36,11 +36,22 @@
 
 .user-card {
     margin: 5px;
+    width: 18rem;
 }
 
 .profiles-container {
     display: flex;
     flex-wrap: wrap;
+}
+
+.feed-posts-container {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.feed-post {
+    margin: 5px;
+    width: 18rem;
 }
 
 .frinds-base-container {
