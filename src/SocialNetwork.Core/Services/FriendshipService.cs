@@ -24,7 +24,7 @@ namespace SocialNetwork.Core.Services
 
         public async Task<ICollection<Friendship>> GetFriendsAsync(long userId)
         {
-            return await _friendshipRepository.GetFriendsAsync(userId);
+            return await _friendshipRepository.GetAllRelationsAsync(userId);
         }
 
         public async Task AddAsync(long requesterId, long addresseeId)

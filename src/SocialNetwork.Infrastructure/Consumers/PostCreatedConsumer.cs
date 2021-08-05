@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using MassTransit;
 using SocialNetwork.Core.Entities;
@@ -20,22 +21,26 @@ namespace SocialNetwork.Infrastructure.Consumers
         public async Task Consume(ConsumeContext<PostCreatedMessage> context)
         {
             var userId = context.Message.Post.UserId;
-            var friendshipRelations = await _friendshipRepository.GetFriendsAsync(userId);
 
-            var subscriberBatches = friendshipRelations
-                .Where(r => r.Status == FriendshipStatus.RequestAccepted || r.Status == FriendshipStatus.RequestSent)
-                .Batch(1000);
+            var friendshipRelations = await _friendshipRepository.GetAcceptedFriendsAsync(userId);
 
-            foreach (var subscriberBatch in subscriberBatches)
+            foreach (var subscriberBatch in friendshipRelations.Batch(1000))
             {
-                var subscriberIds = subscriberBatch.Select(friendship => GetOtherUserId(friendship, userId)).ToList();
-                
-                await context.Publish(new UpdateFeedMessage
-                {
-                    Post = context.Message.Post,
-                    UserIds = subscriberIds
-                });
+                var updateMessage = BuildUpdateMessage(subscriberBatch, context.Message.Post);
+
+                await context.Publish(updateMessage);
             }
+        }
+
+        private static UpdateFeedMessage BuildUpdateMessage(IEnumerable<Friendship> subscriberBatch, UserPost post)
+        {
+            var subscriberIds = subscriberBatch.Select(friendship => GetOtherUserId(friendship, post.UserId)).ToList();
+
+            return new UpdateFeedMessage
+            {
+                Post = post,
+                UserIds = subscriberIds
+            };
         }
 
         private static long GetOtherUserId(Friendship friendship, long userId) =>

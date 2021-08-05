@@ -17,7 +17,7 @@ namespace SocialNetwork.Infrastructure.Repositories
             _dbContext = dbContext;
         }
 
-        public async Task<ICollection<Friendship>> GetFriendsAsync(long userId)
+        public async Task<ICollection<Friendship>> GetAllRelationsAsync(long userId)
         {
             const string sql =
                 @"select Friendship.*, Requester.*,  Addressee.*
@@ -26,6 +26,23 @@ namespace SocialNetwork.Infrastructure.Repositories
                     join UserProfile Addressee on Addressee.UserId = Friendship.AddresseeId
                     where Friendship.RequesterId = @UserId or Friendship.AddresseeId = @UserId;";
 
+            return await RequestFriendshipRelationsAsync(sql, userId);
+        }
+
+        public async Task<ICollection<Friendship>> GetAcceptedFriendsAsync(long userId)
+        {
+            const string sql =
+                @"select Friendship.*, Requester.*,  Addressee.*
+                    from Friendship
+                    join UserProfile Requester on Requester.UserId = Friendship.RequesterId
+                    join UserProfile Addressee on Addressee.UserId = Friendship.AddresseeId
+                    where (Friendship.RequesterId = @UserId and Friendship.Status = 1) or (Friendship.AddresseeId = @UserId and (Friendship.Status = 1 or Friendship.Status = 0));";
+
+            return await RequestFriendshipRelationsAsync(sql, userId);
+        }
+
+        private async Task<ICollection<Friendship>> RequestFriendshipRelationsAsync(string sql, long userId)
+        {
             return await _dbContext.ExecuteQueryAsync(async connection =>
             {
                 var result = await connection.QueryAsync<Friendship, UserProfile, UserProfile, Friendship>(sql,
@@ -36,7 +53,7 @@ namespace SocialNetwork.Infrastructure.Repositories
 
                         return friendship;
                     },
-                    new {UserId = userId},
+                    new { UserId = userId },
                     splitOn: "UserId");
 
                 return result.ToList();

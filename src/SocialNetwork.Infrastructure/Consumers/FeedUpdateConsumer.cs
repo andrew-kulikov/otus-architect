@@ -6,6 +6,7 @@ using SocialNetwork.Core.Entities;
 using SocialNetwork.Core.Messages;
 using SocialNetwork.Core.Repositories;
 using SocialNetwork.Infrastructure.Caching;
+using SocialNetwork.Infrastructure.Extensions;
 
 namespace SocialNetwork.Infrastructure.Consumers
 {
@@ -26,13 +27,18 @@ namespace SocialNetwork.Infrastructure.Consumers
             {
                 var feedKey = CacheKeys.Feed.ForUser(userId);
 
-                var posts = await _listCache.GetAsync(feedKey);
-                if (posts == null || !posts.Any()) posts = await GetPosts(userId);
-
-                posts.Add(context.Message.Post);
+                var posts = await GetPostsAsync(userId, feedKey, context.Message.Post);
 
                 await _listCache.SetAsync(feedKey, posts);
             }
+        }
+
+        private async Task<List<UserPost>> GetPostsAsync(long userId, string feedKey, UserPost addedPost)
+        {
+            var posts = await _listCache.GetAsync(feedKey);
+            if (posts == null || !posts.Any()) return await GetPosts(userId);
+
+            return posts.With(addedPost);
         }
 
         private async Task<List<UserPost>> GetPosts(long userId)

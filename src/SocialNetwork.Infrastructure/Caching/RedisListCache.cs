@@ -2,15 +2,15 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using StackExchange.Redis;
 using StackExchange.Redis.Extensions.Core.Abstractions;
 
 namespace SocialNetwork.Infrastructure.Caching
 {
-    public class RedisListCache<T>: IListCache<T>
+    // TODO: Error handling if redis is unavailable at start
+    public class RedisListCache<T> : IListCache<T>
     {
-        private readonly IRedisCacheClient _redisCacheClient;
         private readonly ILogger<RedisListCache<T>> _logger;
+        private readonly IRedisCacheClient _redisCacheClient;
 
         public RedisListCache(IRedisCacheClient redisCacheClient, ILogger<RedisListCache<T>> logger)
         {

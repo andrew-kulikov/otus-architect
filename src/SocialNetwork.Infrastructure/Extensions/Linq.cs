@@ -6,6 +6,20 @@ namespace SocialNetwork.Infrastructure.Extensions
 {
     public static class Linq
     {
+        public static List<T> With<T>(this List<T> items, T item)
+        {
+            items.Add(item);
+
+            return items;
+        }
+
+        public static ICollection<T> With<T>(this ICollection<T> items, T item)
+        {
+            items.Add(item);
+
+            return items;
+        }
+
         public static IEnumerable<IEnumerable<TSource>> Batch<TSource>(this IEnumerable<TSource> source, int size)
         {
             return Batch(source, size, x => x);
