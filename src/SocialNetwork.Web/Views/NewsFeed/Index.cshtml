@@ -5,18 +5,20 @@
     ViewBag.Title = "News";
 }
 
+
+<div>
+    Create new post <a asp-controller="NewsFeed" asp-action="CreatePost">here</a>
+</div>
+
 <div class="feed-posts-container">
     @foreach (var post in Model)
     {
         <div class="card feed-post">
             <div class="card-header">
-                <h4>@post.UserProfile?.FirstName @post.UserProfile?.LastName</h4>
+                <h5>@post.UserProfile?.FirstName @post.UserProfile?.LastName</h5>
+                <span class="feed-post-date">@post.Created.ToString("yyyy-MM-dd")</span>
             </div>
             <div class="card-body">@post.Text</div>
         </div>
     }
-</div>
-
-<div>
-    Create new post <a asp-controller="NewsFeed" asp-action="CreatePost">here</a>
 </div>
