@@ -69,7 +69,7 @@ namespace SocialNetwork.Infrastructure.Repositories
                     join UserProfile on UserPost.UserId = UserProfile.UserId
                     left join Friendship Outgoing on Outgoing.RequesterId = UserProfile.UserId
                     left join Friendship Incoming on Incoming.AddresseeId = UserProfile.UserId
-                    where (Outgoing.AddresseeId = @UserId and (Outgoing.Status = 1 or Outgoing.Status = 0)) or (Incoming.Status = 1 and Incoming.RequesterId = @UserId)
+                    where (Outgoing.AddresseeId = @UserId and Outgoing.Status = 1) or (Incoming.RequesterId = @UserId and (Incoming.Status = 1 or Incoming.Status = 0))
                     limit 1000;";
 
             return await _dbContext.ExecuteQueryAsync(async connection =>
