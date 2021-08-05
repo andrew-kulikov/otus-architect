@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SocialNetwork.Core.Services;
 using SocialNetwork.Core.Utils;
@@ -8,6 +9,7 @@ using SocialNetwork.Web.ViewModels;
 namespace SocialNetwork.Web.Controllers
 {
     [Route("feed")]
+    [Authorize]
     public class NewsFeedController : UserActionControllerBase
     {
         private readonly IUserPostService _userPostService;
