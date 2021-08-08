@@ -1,0 +1,45 @@
+version: '3.9'
+services:
+  mysql-master:
+    image: mysql:8.0
+    container_name: mysql_master
+    restart: always
+    environment:
+      MYSQL_DATABASE: 'db'
+      MYSQL_USER: 'zukk'
+      MYSQL_PASSWORD: 'zukk'
+      MYSQL_ROOT_PASSWORD: 'admin'
+    ports:
+      - '3306:3306'
+    expose:
+      - '3306'
+    volumes:
+      - mysql-master:/var/lib/mysql
+    deploy:
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 1024M
+  mysql-replica-1:
+    image: mysql:8.0
+    container_name: mysql_replica-1
+    restart: always
+    environment:
+      MYSQL_DATABASE: 'db'
+      MYSQL_USER: 'zukk'
+      MYSQL_PASSWORD: 'zukk'
+      MYSQL_ROOT_PASSWORD: 'admin'
+    ports:
+      - '3307:3306'
+    expose:
+      - '3306'
+    volumes:
+      - mysql-replica1:/var/lib/mysql
+    deploy:
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 1024M
+volumes:
+  mysql-master:
+  mysql-replica1:
