@@ -21,4 +21,5 @@ Technical requirements:
 Implementation notes:
 1. [Task 1](docs/task1/README.md) - Prototype. 
 2. [Task 2](docs/task2/README.md) - MySQL Indexes.
-2. [Task 3](docs/task3/README.md) - Queues and caching.
+3. [Task 3](docs/task3/README.md) - Queues and caching.
+4. [Task 4](docs/task4/README.md) - MySQL replication.
