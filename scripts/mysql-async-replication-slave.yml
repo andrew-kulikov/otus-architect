@@ -1,0 +1,20 @@
+version: '3.9'
+services:
+  mysql-async-replica:
+    image: mysql:8.0
+    container_name: mysql-async-replica
+    restart: always
+    environment:
+      MYSQL_DATABASE: 'db'
+      MYSQL_USER: 'zukk'
+      MYSQL_PASSWORD: 'zukk'
+      MYSQL_ROOT_PASSWORD: 'admin'
+    ports:
+      - '3307:3306'
+    expose:
+      - '3306'
+    volumes:
+      - mysql-replica1:/var/lib/mysql
+volumes:
+  mysql-master:
+  mysql-replica1:
