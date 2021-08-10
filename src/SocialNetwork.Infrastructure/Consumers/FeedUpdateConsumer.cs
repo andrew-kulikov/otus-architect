@@ -2,11 +2,11 @@
 using System.Linq;
 using System.Threading.Tasks;
 using MassTransit;
+using Microsoft.Extensions.Logging;
 using SocialNetwork.Core.Entities;
 using SocialNetwork.Core.Messages;
 using SocialNetwork.Core.Repositories;
 using SocialNetwork.Infrastructure.Caching;
-using SocialNetwork.Infrastructure.Extensions;
 
 namespace SocialNetwork.Infrastructure.Consumers
 {
@@ -14,34 +14,37 @@ namespace SocialNetwork.Infrastructure.Consumers
     {
         private readonly IListCache<UserPost> _listCache;
         private readonly IUserPostRepository _userPostRepository;
+        private readonly ILogger<FeedUpdateConsumer> _logger;
 
-        public FeedUpdateConsumer(IListCache<UserPost> listCache, IUserPostRepository userPostRepository)
+        public FeedUpdateConsumer(IListCache<UserPost> listCache, IUserPostRepository userPostRepository,
+            ILogger<FeedUpdateConsumer> logger)
         {
             _listCache = listCache;
             _userPostRepository = userPostRepository;
+            _logger = logger;
         }
 
         public async Task Consume(ConsumeContext<UpdateFeedMessage> context)
         {
             foreach (var userId in context.Message.UserIds)
             {
+                _logger.LogInformation($"Adding post {context.Message.Post.Text} to user #{userId}");
+
                 var feedKey = CacheKeys.Feed.ForUser(userId);
 
-                var posts = await GetPostsAsync(userId, feedKey, context.Message.Post);
-
-                await _listCache.SetAsync(feedKey, posts);
+                if (_listCache.Any(feedKey))
+                {
+                    await _listCache.AddAsync(feedKey, context.Message.Post);
+                }
+                else
+                {
+                    var posts = await GetPostsAsync(userId);
+                    await _listCache.SetAsync(feedKey, posts);
+                }
             }
         }
 
-        private async Task<List<UserPost>> GetPostsAsync(long userId, string feedKey, UserPost addedPost)
-        {
-            var posts = await _listCache.GetAsync(feedKey);
-            if (posts == null || !posts.Any()) return await GetPosts(userId);
-
-            return posts.With(addedPost);
-        }
-
-        private async Task<List<UserPost>> GetPosts(long userId)
+        private async Task<List<UserPost>> GetPostsAsync(long userId)
         {
             var posts = await _userPostRepository.GetNewsFeedAsync(userId);
 

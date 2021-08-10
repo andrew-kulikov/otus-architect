@@ -1,4 +1,7 @@
 using System.IO;
+using CachingFramework.Redis;
+using CachingFramework.Redis.MsgPack;
+using CachingFramework.Redis.Serializers;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -76,6 +79,8 @@ namespace SocialNetwork.Web
             services.AddScoped<IUserPostService, UserPostService>();
 
             services.AddScoped(typeof(IListCache<>), typeof(RedisListCache<>));
+
+            RedisContext.DefaultSerializer = new MsgPackSerializer();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

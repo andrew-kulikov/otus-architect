@@ -13,8 +13,11 @@
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="10.1.1" />
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="8.1.1" />
+    <PackageReference Include="CachingFramework.Redis.MsgPack" Version="12.0.6" />
     <PackageReference Include="MassTransit.AspNetCore" Version="7.2.1" />
+    <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="5.0.1" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.10.9" />
+    <PackageReference Include="StackExchange.Redis" Version="2.2.62" />
   </ItemGroup>
 
   <ItemGroup>

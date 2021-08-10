@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using CachingFramework.Redis;
 using Microsoft.Extensions.Logging;
+using StackExchange.Redis;
 using StackExchange.Redis.Extensions.Core.Abstractions;
 
 namespace SocialNetwork.Infrastructure.Caching
@@ -18,11 +21,33 @@ namespace SocialNetwork.Infrastructure.Caching
             _logger = logger;
         }
 
+        public bool Any(string key)
+        {
+            try
+            {
+                var context = new RedisContext(_redisCacheClient.GetDbFromConfiguration().Database.Multiplexer);
+
+                var list = context.Collections.GetRedisList<T>(key);
+
+                return list.Count != 0;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, $"Redis exception: {e.Message}");
+
+                return false;
+            }
+        }
+
         public async Task<List<T>> GetAsync(string key)
         {
             try
             {
-                return await _redisCacheClient.GetDbFromConfiguration().GetAsync<List<T>>(key);
+                var context = new RedisContext(_redisCacheClient.GetDbFromConfiguration().Database.Multiplexer);
+
+                var list = context.Collections.GetRedisList<T>(key);
+
+                return list.GetRange().ToList();
             }
             catch (Exception e)
             {
@@ -36,7 +61,27 @@ namespace SocialNetwork.Infrastructure.Caching
         {
             try
             {
-                await _redisCacheClient.GetDbFromConfiguration().AddAsync(key, data, DateTimeOffset.UtcNow.AddHours(6));
+                var context = new RedisContext(_redisCacheClient.GetDbFromConfiguration().Database.Multiplexer);
+
+                var list = context.Collections.GetRedisList<T>(key);
+
+                await list.ClearAsync();
+                list.AddRange(data);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, $"Redis exception: {e.Message}");
+            }
+        }
+
+        public async Task AddAsync(string key, T data)
+        {
+            try
+            {
+                var context = new RedisContext(_redisCacheClient.GetDbFromConfiguration().Database.Multiplexer);
+
+                var list = context.Collections.GetRedisList<T>(key);
+                await list.AddAsync(data);
             }
             catch (Exception e)
             {
