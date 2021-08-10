@@ -9,12 +9,16 @@ namespace SocialNetwork.Infrastructure.MySQL
     public class DbContext : IAsyncDisposable, IDisposable
     {
         private readonly List<Func<MySqlConnection, Task>> _commands;
-        private readonly MySqlConnection _connection;
-        private bool _isConnectionOpen;
+        private readonly MySqlConnection _writeConnection;
+        private readonly MySqlConnection _readConnection;
+
+        private bool _isWriteConnectionOpen;
+        private bool _isReadConnectionOpen;
 
         public DbContext(SqlConnectionFactory connectionFactory)
         {
-            _connection = connectionFactory.CreateConnection();
+            _writeConnection = connectionFactory.CreateMasterConnection();
+            _readConnection = connectionFactory.CreateReadConnection();
 
             _commands = new List<Func<MySqlConnection, Task>>();
         }
@@ -26,22 +30,29 @@ namespace SocialNetwork.Infrastructure.MySQL
             return Task.CompletedTask;
         }
 
-        public async Task<T> ExecuteQueryAsync<T>(Func<MySqlConnection, Task<T>> query)
+        public async Task<T> ExecuteQueryAsync<T>(Func<MySqlConnection, Task<T>> query, bool isUpdate = false)
         {
-            await OpenConnectionAsync();
+            if (isUpdate)
+            {
+                await OpenWriteConnectionAsync();
 
-            return await query(_connection);
+                return await query(_writeConnection);
+            }
+
+            await OpenReadConnectionAsync();
+
+            return await query(_readConnection);
         }
 
         public async Task<int> SaveChangesAsync()
         {
             if (!_commands.Any()) return _commands.Count;
 
-            await OpenConnectionAsync();
+            await OpenWriteConnectionAsync();
 
-            await using (var transaction = await _connection.BeginTransactionAsync())
+            await using (var transaction = await _writeConnection.BeginTransactionAsync())
             {
-                var commandTasks = _commands.Select(c => c(_connection)).ToList();
+                var commandTasks = _commands.Select(c => c(_writeConnection)).ToList();
 
                 await Task.WhenAll(commandTasks);
 
@@ -55,25 +66,37 @@ namespace SocialNetwork.Infrastructure.MySQL
             return result;
         }
 
-        private async Task OpenConnectionAsync()
+        private async Task OpenWriteConnectionAsync()
         {
-            if (!_isConnectionOpen)
+            if (!_isWriteConnectionOpen)
             {
-                await _connection.OpenAsync();
+                await _writeConnection.OpenAsync();
 
-                _isConnectionOpen = true;
+                _isWriteConnectionOpen = true;
+            }
+        }
+
+        private async Task OpenReadConnectionAsync()
+        {
+            if (!_isReadConnectionOpen)
+            {
+                await _readConnection.OpenAsync();
+
+                _isReadConnectionOpen = true;
             }
         }
 
         public async ValueTask DisposeAsync()
         {
-            await SaveChangesAsync();
-            await _connection.CloseAsync();
+            await SaveChangesAsync().ConfigureAwait(false);
+
+            if (_isReadConnectionOpen) await _readConnection.CloseAsync().ConfigureAwait(false);
+            if (_isWriteConnectionOpen) await _writeConnection.CloseAsync().ConfigureAwait(false);
         }
 
         public void Dispose()
         {
-            DisposeAsync().GetAwaiter().GetResult();
+            DisposeAsync().ConfigureAwait(false).GetAwaiter().GetResult();
         }
     }
 }

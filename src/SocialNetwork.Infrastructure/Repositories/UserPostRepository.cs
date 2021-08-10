@@ -59,7 +59,7 @@ namespace SocialNetwork.Infrastructure.Repositories
                 select last_insert_id();";
 
             return await _dbContext.ExecuteQueryAsync(async connection => 
-                await connection.QueryFirstOrDefaultAsync<long>(sql, new {post.UserId, post.Text, post.Created, post.Updated}));
+                await connection.QueryFirstOrDefaultAsync<long>(sql, new {post.UserId, post.Text, post.Created, post.Updated}), true);
         }
 
         public async Task<ICollection<UserPost>> GetNewsFeedAsync(long userId)

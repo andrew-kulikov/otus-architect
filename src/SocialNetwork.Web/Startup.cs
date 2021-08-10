@@ -59,6 +59,7 @@ namespace SocialNetwork.Web
                 });
 
             services.AddOptions<ConnectionStrings>().Bind(Configuration.GetSection("ConnectionStrings"));
+            services.AddOptions<ReplicationGroupConnectionStrings>().Bind(Configuration.GetSection("MySQL"));
 
             services.AddAutoMapper(typeof(Startup).Assembly);
 
