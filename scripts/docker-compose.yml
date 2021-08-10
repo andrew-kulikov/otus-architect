@@ -15,6 +15,11 @@ services:
       - '3306'
     volumes:
       - my-db:/var/lib/mysql
+    deploy:
+      resources:
+        limits:
+          cpus: "0.4"
+          memory: 2048M
   # rabbitmq:
   #   image: rabbitmq:3-management-alpine
   #   container_name: 'rabbitmq'

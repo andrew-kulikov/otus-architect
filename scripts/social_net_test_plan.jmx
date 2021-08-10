@@ -12,27 +12,27 @@
       <stringProp name="TestPlan.user_define_classpath"></stringProp>
     </TestPlan>
     <hashTree>
-      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Search Page Thread Group" enabled="true">
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Load Thread Group" enabled="true">
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
         <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
           <boolProp name="LoopController.continue_forever">false</boolProp>
           <intProp name="LoopController.loops">-1</intProp>
         </elementProp>
-        <stringProp name="ThreadGroup.num_threads">200</stringProp>
-        <stringProp name="ThreadGroup.ramp_time">0</stringProp>
+        <stringProp name="ThreadGroup.num_threads">20</stringProp>
+        <stringProp name="ThreadGroup.ramp_time">1</stringProp>
         <boolProp name="ThreadGroup.scheduler">false</boolProp>
         <stringProp name="ThreadGroup.duration"></stringProp>
         <stringProp name="ThreadGroup.delay"></stringProp>
         <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
       </ThreadGroup>
       <hashTree>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="HTTP Request" enabled="true">
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Search Page HTTP Request" enabled="true">
           <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
             <collectionProp name="Arguments.arguments"/>
           </elementProp>
           <stringProp name="HTTPSampler.domain">localhost</stringProp>
-          <stringProp name="HTTPSampler.port">5000</stringProp>
-          <stringProp name="HTTPSampler.protocol">http</stringProp>
+          <stringProp name="HTTPSampler.port">5041</stringProp>
+          <stringProp name="HTTPSampler.protocol">https</stringProp>
           <stringProp name="HTTPSampler.contentEncoding"></stringProp>
           <stringProp name="HTTPSampler.path">/Profiles/Search?query=${__RandomString(${__Random(1,4)},abcdefghijklmnopqrstuvwxyz)}&amp;page=${__Random(1, 5)}&amp;pageSize=${__Random(30, 100)}</stringProp>
           <stringProp name="HTTPSampler.method">GET</stringProp>
@@ -48,7 +48,43 @@
           <CookieManager guiclass="CookiePanel" testclass="CookieManager" testname="HTTP Cookie Manager" enabled="true">
             <collectionProp name="CookieManager.cookies">
               <elementProp name=".AspNetCore.Cookies" elementType="Cookie" testname=".AspNetCore.Cookies">
-                <stringProp name="Cookie.value">CfDJ8BIHDk1pteRBkofpsOZqYs7IEk_AfKp7Rm2Ffmcqp2q35RU06n3Obe7epD2dVc0ZJZf3Wqu5kegkecz4madPNXHVIViR-eORW8FzYfqNrZJPLjLD6aX7uTZtess7IauAnmWj9H4FfmcYi_X_braa2OeLrdMj3-_XT80E66LpKk3cjDji5gUnB5bNfZ9RkulyWfDeSoBXsbbCORTPLZ8e8IDEwMkXytSZx19S72FZ66lQcPsDPC8wqUGPJdIGtJYs2YpcEZ0rC93xt4T-VgtlTGm0_ElatXdK-dGUlaA5-2hG0WBdCxcY9ZMoFej1CjIS5YiQDodhq-NeQvbGRtA9Zdr5trQXmQTrBEWzZkqoNG277E6Kv9YDOY1IJW-L8hi7ubSCoMkdruxYf7UxVxYsmLM</stringProp>
+                <stringProp name="Cookie.value">CfDJ8DSh7eN2zdtEstqGo2Dw_UotLLyrzhPCLmKkpJDJX_ApPL6wOeRux-TzgeFRfIM9Z1jzO4Q4DcXuKm8HxbwmhPVkzr7DkfEiOnGA2NjNxbsX5lcLjBmtcA9Dg3yBwdUY-YMr4mNFCny-P9eKgZ_FzO3QR8OjmCkpNljw0AARFpFOIIyaSaNO4TuiSA-MBkH7AH5b-QJP2SOK607OsBtwExcdKwCJFYOx0jmNzTGFtG1NaMidxbsb5EsG-U3FRrdcxha3AObUZRF3_FK3NEoJ3b7W-k3ww7kMGcn3hhCL5w9OX8eFu0qZhscptlKjGiSsvvaEPc2xNRQDSd8aILcvtQRu8zoRDNUNv8vSvOwRwfKbTNbxS6jEgG_dy8jhIe6czN1tzF3V9xwXVG-HN_oAezE</stringProp>
+                <stringProp name="Cookie.domain">localhost</stringProp>
+                <stringProp name="Cookie.path">/</stringProp>
+                <boolProp name="Cookie.secure">false</boolProp>
+                <longProp name="Cookie.expires">0</longProp>
+                <boolProp name="Cookie.path_specified">true</boolProp>
+                <boolProp name="Cookie.domain_specified">true</boolProp>
+              </elementProp>
+            </collectionProp>
+            <boolProp name="CookieManager.clearEachIteration">false</boolProp>
+            <boolProp name="CookieManager.controlledByThreadGroup">false</boolProp>
+          </CookieManager>
+          <hashTree/>
+        </hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Feed Page HTTP Request" enabled="true">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+            <collectionProp name="Arguments.arguments"/>
+          </elementProp>
+          <stringProp name="HTTPSampler.domain">localhost</stringProp>
+          <stringProp name="HTTPSampler.port">5041</stringProp>
+          <stringProp name="HTTPSampler.protocol">https</stringProp>
+          <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+          <stringProp name="HTTPSampler.path">/feed</stringProp>
+          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+          <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+          <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+          <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+          <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+          <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+          <stringProp name="HTTPSampler.response_timeout"></stringProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+          <CookieManager guiclass="CookiePanel" testclass="CookieManager" testname="HTTP Cookie Manager" enabled="true">
+            <collectionProp name="CookieManager.cookies">
+              <elementProp name=".AspNetCore.Cookies" elementType="Cookie" testname=".AspNetCore.Cookies">
+                <stringProp name="Cookie.value">CfDJ8DSh7eN2zdtEstqGo2Dw_UotLLyrzhPCLmKkpJDJX_ApPL6wOeRux-TzgeFRfIM9Z1jzO4Q4DcXuKm8HxbwmhPVkzr7DkfEiOnGA2NjNxbsX5lcLjBmtcA9Dg3yBwdUY-YMr4mNFCny-P9eKgZ_FzO3QR8OjmCkpNljw0AARFpFOIIyaSaNO4TuiSA-MBkH7AH5b-QJP2SOK607OsBtwExcdKwCJFYOx0jmNzTGFtG1NaMidxbsb5EsG-U3FRrdcxha3AObUZRF3_FK3NEoJ3b7W-k3ww7kMGcn3hhCL5w9OX8eFu0qZhscptlKjGiSsvvaEPc2xNRQDSd8aILcvtQRu8zoRDNUNv8vSvOwRwfKbTNbxS6jEgG_dy8jhIe6czN1tzF3V9xwXVG-HN_oAezE</stringProp>
                 <stringProp name="Cookie.domain">localhost</stringProp>
                 <stringProp name="Cookie.path">/</stringProp>
                 <boolProp name="Cookie.secure">false</boolProp>
@@ -283,7 +319,7 @@
             <connectTime>true</connectTime>
           </value>
         </objProp>
-        <stringProp name="filename">D:\git\otus-architect\docs\task2\measurements\index_prefix_paged_200_coonections</stringProp>
+        <stringProp name="filename">D:\git\otus-architect\docs\task4\measurements\async_replication_1_slave_1</stringProp>
       </ResultCollector>
       <hashTree/>
     </hashTree>
