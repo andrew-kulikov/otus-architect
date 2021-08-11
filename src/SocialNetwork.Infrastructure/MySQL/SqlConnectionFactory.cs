@@ -8,35 +8,35 @@ namespace SocialNetwork.Infrastructure.MySQL
 {
     public class SqlConnectionFactory
     {
-        private readonly IOptions<ConnectionStrings> _options;
         private readonly IOptions<ReplicationGroupConnectionStrings> _replicationGroupOptions;
         private readonly Random _random;
+        private MySqlConnection _masterConnection;
 
-        public SqlConnectionFactory(IOptions<ConnectionStrings> options, IOptions<ReplicationGroupConnectionStrings> replicationGroupOptions)
+        public SqlConnectionFactory(IOptions<ReplicationGroupConnectionStrings> replicationGroupOptions)
         {
-            _options = options;
             _replicationGroupOptions = replicationGroupOptions;
             _random = new Random();
         }
 
-        public MySqlConnection CreateConnection()
-        {
-            return new MySqlConnection(_options.Value.SocialNetworkDb);
-        }
+        public MySqlConnection CreateMasterConnection() => 
+            _masterConnection ??= new MySqlConnection(GetMasterConnectionString());
 
-        public MySqlConnection CreateMasterConnection()
-        {
-            var masterConnectionString = _replicationGroupOptions.Value.ConnectionStrings.First(c => c.Type == "Master");
+        public MySqlConnection CreateReadConnection() =>
+            IsSingleNode()
+                ? CreateMasterConnection() 
+                : new MySqlConnection(GetRandomConnectionString());
 
-            return new MySqlConnection(masterConnectionString.ConnectionString);
-        }
+        private bool IsSingleNode() =>
+            _replicationGroupOptions.Value.ConnectionStrings.Count == 1;
 
-        public MySqlConnection CreateReadConnection()
+        private string GetMasterConnectionString() => 
+            _replicationGroupOptions.Value.ConnectionStrings.First(c => c.Type == "Master").ConnectionString;
+
+        private string GetRandomConnectionString()
         {
             var randomConnectionId = _random.Next(_replicationGroupOptions.Value.ConnectionStrings.Count);
-            var randomConnectionString = _replicationGroupOptions.Value.ConnectionStrings[randomConnectionId];
 
-            return new MySqlConnection(randomConnectionString.ConnectionString);
+            return _replicationGroupOptions.Value.ConnectionStrings[randomConnectionId].ConnectionString;
         }
     }
 }
