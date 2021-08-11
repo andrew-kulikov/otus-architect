@@ -1,0 +1,54 @@
+version: '3.9'
+services:
+  mysql-master:
+    image: mysql:8.0
+    container_name: mysql_master
+    restart: always
+    environment:
+      MYSQL_DATABASE: 'db'
+      MYSQL_USER: 'zukk'
+      MYSQL_PASSWORD: 'zukk'
+      MYSQL_ROOT_PASSWORD: 'admin'
+    ports:
+      - '3307:3306'
+    expose:
+      - '3306'
+    volumes:
+      - mysql-master:/var/lib/mysql
+      - ./config/mysql_gtid.cnf:/etc/mysql/conf.d/mysql_gtid.cnf
+  mysql-replica-1:
+    image: mysql:8.0
+    container_name: mysql_replica-1
+    restart: always
+    environment:
+      MYSQL_DATABASE: 'db'
+      MYSQL_USER: 'zukk'
+      MYSQL_PASSWORD: 'zukk'
+      MYSQL_ROOT_PASSWORD: 'admin'
+    ports:
+      - '3308:3306'
+    expose:
+      - '3306'
+    volumes:
+      - mysql-replica1:/var/lib/mysql
+      - ./config/mysql_gtid.cnf:/etc/mysql/conf.d/mysql_gtid.cnf
+  mysql-replica-2:
+    image: mysql:8.0
+    container_name: mysql_replica-2
+    restart: always
+    environment:
+      MYSQL_DATABASE: 'db'
+      MYSQL_USER: 'zukk'
+      MYSQL_PASSWORD: 'zukk'
+      MYSQL_ROOT_PASSWORD: 'admin'
+    ports:
+      - '3309:3306'
+    expose:
+      - '3306'
+    volumes:
+      - mysql-replica2:/var/lib/mysql
+      - ./config/mysql_gtid.cnf:/etc/mysql/conf.d/mysql_gtid.cnf
+volumes:
+  mysql-master:
+  mysql-replica1:
+  mysql-replica2:
