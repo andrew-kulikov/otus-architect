@@ -27,13 +27,20 @@ namespace SocialNetwork.UserGenerator
     {
         public static async Task Main(string[] args)
         {
-            var connectionStrings = new ConnectionStrings
+            var replicationGroup = new ReplicationGroupConnectionStrings
             {
-                SocialNetworkDb = "Server=127.0.0.1;Database=SocialNetwork;Uid=zukk;Pwd=zukk;"
+                ConnectionStrings = new List<ReplicationGroupConnectionString>
+                {
+                    new ReplicationGroupConnectionString
+                    {
+                        ConnectionString = "Server=127.0.0.1;Database=SocialNetwork;Uid=root;Pwd=admin;",
+                        Name = "Master",
+                        Type = "Master"
+                    }
+                }
             };
 
-            var connectionFactory = new SqlConnectionFactory(new OptionsWrapper<ConnectionStrings>(connectionStrings));
-            
+            var connectionFactory = new SqlConnectionFactory(new OptionsWrapper<ReplicationGroupConnectionStrings>(replicationGroup));
 
             var fakeProfile = new Faker<UserProfile>()
                 .RuleFor(u => u.FirstName, (f, u) => f.Name.FirstName())
