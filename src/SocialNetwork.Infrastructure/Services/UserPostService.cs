@@ -31,14 +31,13 @@ namespace SocialNetwork.Infrastructure.Services
         {
             var feedKey = CacheKeys.Feed.ForUser(userId);
 
-            var posts = new List<UserPost>();//await _listCache.GetAsync(feedKey);
+            var posts = await _listCache.GetAsync(feedKey);
 
             if (posts == null || !posts.Any())
             {
                 posts = (await _repository.GetNewsFeedAsync(userId)).ToList();
 
-                // TODO: Add error handling
-                //await _listCache.SetAsync(feedKey, posts);
+                await _listCache.SetAsync(feedKey, posts);
             }
 
             return posts;
