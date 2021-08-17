@@ -41,8 +41,16 @@ services:
       - ./config/redis.conf:/usr/local/etc/redis/redis.conf
     environment:
       - REDIS_REPLICATION_MODE=master
+  tarantool:
+    image: "tarantool/tarantool:2.6.0"
+    container_name: 'tarantool'
+    ports:
+      - "3301:3301"
+    volumes:
+      - tarantool-data:/var/lib/tarantool
 volumes:
   my-db:
   rabbitmq-data:
   rabbitmq-log:
   redis-data:
+  tarantool-data:
