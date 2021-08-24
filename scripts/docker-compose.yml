@@ -48,6 +48,7 @@ services:
       - "3301:3301"
     volumes:
       - tarantool-data:/var/lib/tarantool
+      - ./tarantool:/usr/local/share/tarantool
 volumes:
   my-db:
   rabbitmq-data:

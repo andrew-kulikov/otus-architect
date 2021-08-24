@@ -10,6 +10,7 @@ using SocialNetwork.Infrastructure.Configuration;
 using SocialNetwork.Infrastructure.Extensions;
 using SocialNetwork.Infrastructure.MySQL;
 using SocialNetwork.Infrastructure.Repositories;
+using SocialNetwork.Infrastructure.Tarantool;
 
 namespace SocialNetwork.TarantoolReplicator
 {
@@ -46,15 +47,15 @@ namespace SocialNetwork.TarantoolReplicator
             using (var tarantoolClient = await Box.Connect("localhost", 3301))
             {
                 var index = tarantoolClient.Schema[UserProfilesSpaceName][UserProfilesPrimaryIndex];
-                var lastInsertedId = 0L;
-
+                
                 Console.WriteLine($"Start processing batch {profiles.First().UserId}");
 
                 foreach (var userProfile in profiles)
                 {
-                    await index.Insert(ToTuple(userProfile));
-                    if (userProfile.UserId > lastInsertedId) lastInsertedId = userProfile.UserId;
+                    await index.Insert(userProfile.ToTuple());
                 }
+
+                var lastInsertedId = profiles.Select(p => p.UserId).Max();
 
                 var metadataIndex = tarantoolClient.Schema[MetadataSpaceName][MetadataPrimaryIndex];
 
@@ -64,10 +65,6 @@ namespace SocialNetwork.TarantoolReplicator
                 Console.WriteLine($"Saved user profile {lastInsertedId}");
             }
         }
-
-        private static ValueTuple<long, string, string, int, string, string> ToTuple(UserProfile profile) =>
-            new ValueTuple<long, string, string, int, string, string>(profile.UserId, profile.FirstName, profile.LastName,
-                profile.Age, profile.Interests, profile.City);
 
         private static async Task<long> GetLastSavedIdAsync()
         {
