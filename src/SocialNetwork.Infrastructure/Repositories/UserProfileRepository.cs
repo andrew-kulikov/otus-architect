@@ -38,6 +38,18 @@ namespace SocialNetwork.Infrastructure.Repositories
             });
         }
 
+        public async Task<ICollection<UserProfile>> GetNewUserProfilesAsync(long fromId, int count)
+        {
+            var sql = @$"select * from UserProfile where UserId > {fromId} order by UserId limit {count}";
+
+            return await _dbContext.ExecuteQueryAsync(async connection =>
+            {
+                var profiles = await connection.QueryAsync<UserProfile>(sql);
+
+                return profiles.ToList();
+            });
+        }
+
         public async Task<ICollection<UserProfile>> SearchUserProfilesAsync(string query, int page, int pageSize)
         {
             var sql = @$"select * from UserProfile 
