@@ -15,11 +15,6 @@ services:
       - '3306'
     volumes:
       - my-db:/var/lib/mysql
-    deploy:
-      resources:
-        limits:
-          cpus: "0.4"
-          memory: 2048M
   # rabbitmq:
   #   image: rabbitmq:3-management-alpine
   #   container_name: 'rabbitmq'
@@ -42,7 +37,7 @@ services:
     environment:
       - REDIS_REPLICATION_MODE=master
   tarantool:
-    image: "tarantool/tarantool:2.6.0"
+    image: "tarantool/tarantool:1.10.9"
     container_name: 'tarantool'
     ports:
       - "3301:3301"

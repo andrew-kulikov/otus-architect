@@ -8,6 +8,7 @@ using SocialNetwork.Core.Entities;
 using SocialNetwork.Core.Repositories;
 using SocialNetwork.Core.Services;
 using SocialNetwork.Core.Utils;
+using SocialNetwork.Infrastructure.Services;
 using SocialNetwork.Web.Utils;
 using SocialNetwork.Web.ViewModels;
 
@@ -19,16 +20,19 @@ namespace SocialNetwork.Web.Controllers
         private readonly IUserProfileRepository _userProfileRepository;
         private readonly IFriendshipService _friendshipService;
         private readonly IMapper _mapper;
+        private readonly IUserProfileSearchService _profileSearchService;
 
         public ProfilesController(
             IMapper mapper,
             IUserContext userContext, 
             IUserProfileRepository userProfileRepository,
-            IFriendshipService friendshipService) : base(userContext)
+            IFriendshipService friendshipService, 
+            IUserProfileSearchService profileSearchService) : base(userContext)
         {
             _userProfileRepository = userProfileRepository;
             _mapper = mapper;
             _friendshipService = friendshipService;
+            _profileSearchService = profileSearchService;
         }
 
         public async Task<IActionResult> Index(int page, int pageSize)
@@ -50,10 +54,7 @@ namespace SocialNetwork.Web.Controllers
         {
             (page, pageSize) = ValidatePage(page, pageSize);
 
-            var allProfiles = string.IsNullOrEmpty(query) 
-                ? new List<UserProfile>() 
-                : await _userProfileRepository.SearchUserProfilesAsync(query, page, pageSize);
-
+            var allProfiles = await _profileSearchService.SearchUserProfilesAsync(query, page, pageSize);
             var profiles = FilterOtherUsers(allProfiles);
 
             return View(new UserProfilesSearchViewModel

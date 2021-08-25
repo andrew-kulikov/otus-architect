@@ -22,8 +22,12 @@ namespace SocialNetwork.TarantoolReplicator
         private const string UserProfilesPrimaryIndex = "primary";
         private const string MetadataPrimaryIndex = "primary";
 
+        private static Box TarantoolClient;
+
         public static async Task Main(string[] args)
         {
+            TarantoolClient = await Box.Connect("localhost", 3301);
+
             await CreateSchemaAsync();
 
             while (true)
@@ -39,43 +43,37 @@ namespace SocialNetwork.TarantoolReplicator
                 Console.WriteLine($"Processed batch with last user {lastSavedId}");
             }
 
+            TarantoolClient.Dispose();
+
             Console.WriteLine("End!");
         }
 
         private static async Task SaveProfilesInTrantoolAsync(IEnumerable<UserProfile> profiles)
         {
-            using (var tarantoolClient = await Box.Connect("localhost", 3301))
-            {
-                var index = tarantoolClient.Schema[UserProfilesSpaceName][UserProfilesPrimaryIndex];
-                
-                Console.WriteLine($"Start processing batch {profiles.First().UserId}");
+            var index = TarantoolClient.Schema[UserProfilesSpaceName][UserProfilesPrimaryIndex];
 
-                foreach (var userProfile in profiles)
-                {
-                    await index.Insert(userProfile.ToTuple());
-                }
+            Console.WriteLine($"Start processing batch {profiles.First().UserId}");
 
-                var lastInsertedId = profiles.Select(p => p.UserId).Max();
+            foreach (var userProfile in profiles) await index.Insert(userProfile.ToTuple());
 
-                var metadataIndex = tarantoolClient.Schema[MetadataSpaceName][MetadataPrimaryIndex];
+            var lastInsertedId = profiles.Select(p => p.UserId).Max();
 
-                await metadataIndex.Insert(new ValueTuple<long, string>(lastInsertedId,
-                    DateTime.UtcNow.ToString(CultureInfo.InvariantCulture)));
+            var metadataIndex = TarantoolClient.Schema[MetadataSpaceName][MetadataPrimaryIndex];
 
-                Console.WriteLine($"Saved user profile {lastInsertedId}");
-            }
+            await metadataIndex.Insert(new ValueTuple<long, string>(
+                lastInsertedId,
+                DateTime.UtcNow.ToString(CultureInfo.InvariantCulture)));
+
+            Console.WriteLine($"Saved user profile {lastInsertedId}");
         }
 
         private static async Task<long> GetLastSavedIdAsync()
         {
-            using (var tarantoolClient = await Box.Connect("localhost", 3301))
-            {
-                var index = tarantoolClient.Schema[MetadataSpaceName][MetadataPrimaryIndex];
+            var index = TarantoolClient.Schema[MetadataSpaceName][MetadataPrimaryIndex];
 
-                var max = await index.Max<ValueTuple<long, string>>();
+            var max = await index.Max<ValueTuple<long, string>>();
 
-                return max.Item1;
-            }
+            return max.Item1;
         }
 
         private static SqlConnectionFactory BuildConnectionFactory()
@@ -110,22 +108,22 @@ namespace SocialNetwork.TarantoolReplicator
 
         private static async Task CreateSchemaAsync()
         {
-            using (var tarantoolClient = await Box.Connect("localhost", 3301))
-            {
-                await tarantoolClient.Eval<string>($"box.schema.create_space('{UserProfilesSpaceName}', {{if_not_exists = true}})");
-                await tarantoolClient.Eval<string>($"box.schema.create_space('{MetadataSpaceName}', {{if_not_exists = true}})");
+            await TarantoolClient.Eval<string>($"box.schema.create_space('{UserProfilesSpaceName}', {{if_not_exists = true}})");
+            await TarantoolClient.Eval<string>($"box.schema.create_space('{MetadataSpaceName}', {{if_not_exists = true}})");
 
-                var primaryParts = "{{field = 1, type = 'unsigned'}}";
-                var metaPrimaryParts = "{{field = 1, type = 'unsigned'}}";
-                var nameParts = "{{field = 2, type = 'string', collation = 'unicode_ci'}, {field = 3, type = 'string', collation = 'unicode_ci'}}";
+            var primaryParts = "{{field = 1, type = 'unsigned'}}";
+            var metaPrimaryParts = "{{field = 1, type = 'unsigned'}}";
+            var nameParts =
+                "{{field = 2, type = 'string', collation = 'unicode_ci'}, {field = 3, type = 'string', collation = 'unicode_ci'}}";
 
-                await tarantoolClient.Eval<string>(
-                    $"box.space.{UserProfilesSpaceName}:create_index('primary', {{unique = true, if_not_exists = true, parts = {primaryParts}}})");
-                await tarantoolClient.Eval<string>(
-                    $"box.space.{UserProfilesSpaceName}:create_index('name', {{unique = false, if_not_exists = true, parts = {nameParts}}})");
-                await tarantoolClient.Eval<string>(
-                    $"box.space.{MetadataSpaceName}:create_index('primary', {{unique = true, if_not_exists = true, parts = {metaPrimaryParts}}})");
-            }
+            await TarantoolClient.Eval<string>(
+                $"box.space.{UserProfilesSpaceName}:create_index('primary', {{unique = true, if_not_exists = true, parts = {primaryParts}}})");
+            await TarantoolClient.Eval<string>(
+                $"box.space.{UserProfilesSpaceName}:create_index('name', {{unique = false, if_not_exists = true, parts = {nameParts}}})");
+            await TarantoolClient.Eval<string>(
+                $"box.space.{MetadataSpaceName}:create_index('primary', {{unique = true, if_not_exists = true, parts = {metaPrimaryParts}}})");
+
+            await TarantoolClient.Schema.Reload();
         }
     }
 }

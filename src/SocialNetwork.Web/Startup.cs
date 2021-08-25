@@ -19,6 +19,7 @@ using SocialNetwork.Infrastructure.Consumers;
 using SocialNetwork.Infrastructure.MySQL;
 using SocialNetwork.Infrastructure.Repositories;
 using SocialNetwork.Infrastructure.Services;
+using SocialNetwork.Infrastructure.Tarantool;
 using SocialNetwork.Web.Authentication;
 using SocialNetwork.Web.Extensions;
 using StackExchange.Redis.Extensions.Core.Configuration;
@@ -60,6 +61,7 @@ namespace SocialNetwork.Web
 
             services.AddOptions<ConnectionStrings>().Bind(Configuration.GetSection("ConnectionStrings"));
             services.AddOptions<ReplicationGroupConnectionStrings>().Bind(Configuration.GetSection("MySQL"));
+            services.AddOptions<TarantoolConnectionOptions>().Bind(Configuration.GetSection("Tarantool"));
 
             services.AddAutoMapper(typeof(Startup).Assembly);
 
@@ -78,6 +80,7 @@ namespace SocialNetwork.Web
 
             services.AddScoped<IFriendshipService, FriendshipService>();
             services.AddScoped<IUserPostService, UserPostService>();
+            services.AddScoped<IUserProfileSearchService, TarantoolUserProfileSearchService>();
 
             services.AddScoped(typeof(IListCache<>), typeof(RedisListCache<>));
 
