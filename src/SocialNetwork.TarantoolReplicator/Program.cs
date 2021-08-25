@@ -117,7 +117,7 @@ namespace SocialNetwork.TarantoolReplicator
 
                 var primaryParts = "{{field = 1, type = 'unsigned'}}";
                 var metaPrimaryParts = "{{field = 1, type = 'unsigned'}}";
-                var nameParts = "{{field = 2, type = 'string'}, {field = 3, type = 'string'}}";
+                var nameParts = "{{field = 2, type = 'string', collation = 'unicode_ci'}, {field = 3, type = 'string', collation = 'unicode_ci'}}";
 
                 await tarantoolClient.Eval<string>(
                     $"box.space.{UserProfilesSpaceName}:create_index('primary', {{unique = true, if_not_exists = true, parts = {primaryParts}}})");
