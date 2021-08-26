@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -16,6 +18,9 @@ namespace SocialNetwork.Infrastructure.Tarantool
         private readonly IOptions<TarantoolConnectionOptions> _options;
         private readonly ILogger<TarantoolUserProfileSearchService> _logger;
 
+        private static Box _tarantoolClient;
+        private static SemaphoreSlim _connectionLock = new SemaphoreSlim(1, 1);
+
         public TarantoolUserProfileSearchService(IOptions<TarantoolConnectionOptions> options, ILogger<TarantoolUserProfileSearchService> logger)
         {
             _options = options;
@@ -29,24 +34,56 @@ namespace SocialNetwork.Infrastructure.Tarantool
             var connectionString = $"{_options.Value.Host}:{_options.Value.Port}";
             var connectionOptions = new ClientOptions(connectionString, new StringWriterLog());
 
-            using (var tarantoolClient = new Box(connectionOptions))
+            await InitClientAsync(connectionOptions);
+
+            //await tarantoolClient.Eval<string>("dofile('/usr/local/share/tarantool/init.lua')");
+            var sw = new Stopwatch();
+            sw.Start();
+
+            try
             {
-                //await tarantoolClient.Eval<string>("dofile('/usr/local/share/tarantool/init.lua')");
+             
+                
+                var profileTuples = await _tarantoolClient.Call_1_6<
+                    TarantoolTuple<string, int, int>,
+                    TarantoolTuple<long, string, string, int, string, string>>("find_profiles", TarantoolTuple.Create(query, page * pageSize, pageSize));
 
-                try
+                sw.Stop();
+                _logger.LogInformation($"Request to tarantool took {sw.Elapsed}");
+
+                return profileTuples.Data.Select(TarantoolModelExtensions.ToProfile).ToList();
+            }
+            catch (ArgumentException e)
+            {
+                _logger.LogError($"Error in search call: {e.Message}");
+
+                sw.Stop();
+                _logger.LogInformation($"Request to tarantool took {sw.Elapsed}");
+
+                return new List<UserProfile>();
+            }
+        }
+
+        private static async ValueTask InitClientAsync(ClientOptions options)
+        {
+            if (_tarantoolClient == null)
+            {
+                await _connectionLock.WaitAsync();
+                
+                if (_tarantoolClient == null)
                 {
-                    var profileTuples = await tarantoolClient.Call_1_6<
-                        TarantoolTuple<string, int, int>,
-                        TarantoolTuple<long, string, string, int, string, string>>("find_profiles", TarantoolTuple.Create(query, page * pageSize, pageSize));
-
-                    return profileTuples.Data.Select(TarantoolModelExtensions.ToProfile).ToList();
+                    try
+                    {
+                        _tarantoolClient = new Box(options);
+                        await _tarantoolClient.Connect();
+                    }
+                    catch (Exception e)
+                    {
+                      
+                    }
                 }
-                catch (ArgumentException e)
-                {
-                    _logger.LogError(e, "Error in search call");
 
-                    return new List<UserProfile>();
-                }
+                _connectionLock.Release();
             }
         }
     }

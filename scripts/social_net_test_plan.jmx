@@ -18,7 +18,7 @@
           <boolProp name="LoopController.continue_forever">false</boolProp>
           <intProp name="LoopController.loops">-1</intProp>
         </elementProp>
-        <stringProp name="ThreadGroup.num_threads">20</stringProp>
+        <stringProp name="ThreadGroup.num_threads">5</stringProp>
         <stringProp name="ThreadGroup.ramp_time">1</stringProp>
         <boolProp name="ThreadGroup.scheduler">false</boolProp>
         <stringProp name="ThreadGroup.duration"></stringProp>
@@ -48,7 +48,7 @@
           <CookieManager guiclass="CookiePanel" testclass="CookieManager" testname="HTTP Cookie Manager" enabled="true">
             <collectionProp name="CookieManager.cookies">
               <elementProp name=".AspNetCore.Cookies" elementType="Cookie" testname=".AspNetCore.Cookies">
-                <stringProp name="Cookie.value">CfDJ8DSh7eN2zdtEstqGo2Dw_UotLLyrzhPCLmKkpJDJX_ApPL6wOeRux-TzgeFRfIM9Z1jzO4Q4DcXuKm8HxbwmhPVkzr7DkfEiOnGA2NjNxbsX5lcLjBmtcA9Dg3yBwdUY-YMr4mNFCny-P9eKgZ_FzO3QR8OjmCkpNljw0AARFpFOIIyaSaNO4TuiSA-MBkH7AH5b-QJP2SOK607OsBtwExcdKwCJFYOx0jmNzTGFtG1NaMidxbsb5EsG-U3FRrdcxha3AObUZRF3_FK3NEoJ3b7W-k3ww7kMGcn3hhCL5w9OX8eFu0qZhscptlKjGiSsvvaEPc2xNRQDSd8aILcvtQRu8zoRDNUNv8vSvOwRwfKbTNbxS6jEgG_dy8jhIe6czN1tzF3V9xwXVG-HN_oAezE</stringProp>
+                <stringProp name="Cookie.value">CfDJ8DSh7eN2zdtEstqGo2Dw_UoUvGvPKuTkPfTow1wc6oiH9PZCcD36PBUzeIwJNoUiZzDxuW51QOCpogujKE2WA5w_-FqhOZny4qJe8JhMy8saQIk3ZIqOWeUeGH8Gbs5simHdQNN4r-egwRCz81zlPA6CZhHD-9ajLLTiQQLZk2LIMsTrvaPCziNMMaIHutO7-9n7a_Bwn0Ad8nfxW9Twjqa5B2qDCFqgYMTXjW2dSHMjIX8aylaNaZ9Cs8FhciSJ6RC7Xxn3hcN2mA3AjmyFz8nYQXwY2SrHgSxSjttY8qAn5aFaR_PgG2kJpisTBRggEuDS1eFjcnH2tlzvX-sNdL-y65qAwDSJJc_25ttIoaAn0IuNNxEdPqnW4-VE7H-l2DeBdxY6wlyRVOMU9wPkSbM</stringProp>
                 <stringProp name="Cookie.domain">localhost</stringProp>
                 <stringProp name="Cookie.path">/</stringProp>
                 <boolProp name="Cookie.secure">false</boolProp>
@@ -62,7 +62,7 @@
           </CookieManager>
           <hashTree/>
         </hashTree>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Feed Page HTTP Request" enabled="true">
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Feed Page HTTP Request" enabled="false">
           <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
             <collectionProp name="Arguments.arguments"/>
           </elementProp>
@@ -319,7 +319,7 @@
             <connectTime>true</connectTime>
           </value>
         </objProp>
-        <stringProp name="filename">D:\git\otus-architect\docs\task4\measurements\async_replication_1_slave_1</stringProp>
+        <stringProp name="filename">D:\git\otus-architect\docs\task5\measurements\tarantool</stringProp>
       </ResultCollector>
       <hashTree/>
     </hashTree>

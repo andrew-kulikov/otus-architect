@@ -349,8 +349,5 @@ MigrationBackup/
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
 
-docs/task2/report/
-docs/task2/measurements/
-
-docs/task4/report/
-docs/task4/measurements/
+docs/task*/report/
+docs/task*/measurements/
