@@ -81,6 +81,7 @@ namespace SocialNetwork.Web
             services.AddScoped<IFriendshipService, FriendshipService>();
             services.AddScoped<IUserPostService, UserPostService>();
             services.AddScoped<IUserProfileSearchService, TarantoolUserProfileSearchService>();
+            services.AddSingleton<TarantoolClientPool>();
 
             services.AddScoped(typeof(IListCache<>), typeof(RedisListCache<>));
 

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -17,73 +16,133 @@ namespace SocialNetwork.Infrastructure.Tarantool
     {
         private readonly IOptions<TarantoolConnectionOptions> _options;
         private readonly ILogger<TarantoolUserProfileSearchService> _logger;
+        private readonly TarantoolClientPool _tarantoolClientPool;
 
-        private static Box _tarantoolClient;
-        private static SemaphoreSlim _connectionLock = new SemaphoreSlim(1, 1);
-
-        public TarantoolUserProfileSearchService(IOptions<TarantoolConnectionOptions> options, ILogger<TarantoolUserProfileSearchService> logger)
+        public TarantoolUserProfileSearchService(
+            IOptions<TarantoolConnectionOptions> options, 
+            ILogger<TarantoolUserProfileSearchService> logger, 
+            TarantoolClientPool tarantoolClientPool)
         {
             _options = options;
             _logger = logger;
+            _tarantoolClientPool = tarantoolClientPool;
         }
 
         public async Task<ICollection<UserProfile>> SearchUserProfilesAsync(string query, int page, int pageSize)
         {
             if (string.IsNullOrEmpty(query)) return new List<UserProfile>();
 
-            var connectionString = $"{_options.Value.Host}:{_options.Value.Port}";
-            var connectionOptions = new ClientOptions(connectionString, new StringWriterLog());
-
-            await InitClientAsync(connectionOptions);
-
+            var tarantoolClient = await _tarantoolClientPool.GetConnectedClientAsync(_options.Value);
+        
             //await tarantoolClient.Eval<string>("dofile('/usr/local/share/tarantool/init.lua')");
-            var sw = new Stopwatch();
-            sw.Start();
 
             try
             {
-             
-                
-                var profileTuples = await _tarantoolClient.Call_1_6<
+                var profileTuples = await tarantoolClient.Call_1_6<
                     TarantoolTuple<string, int, int>,
                     TarantoolTuple<long, string, string, int, string, string>>("find_profiles", TarantoolTuple.Create(query, page * pageSize, pageSize));
-
-                sw.Stop();
-                _logger.LogInformation($"Request to tarantool took {sw.Elapsed}");
 
                 return profileTuples.Data.Select(TarantoolModelExtensions.ToProfile).ToList();
             }
             catch (ArgumentException e)
             {
-                _logger.LogError($"Error in search call: {e.Message}");
-
-                sw.Stop();
-                _logger.LogInformation($"Request to tarantool took {sw.Elapsed}");
+                _logger.LogError(e, "Error in search call");
 
                 return new List<UserProfile>();
             }
         }
+    }
 
-        private static async ValueTask InitClientAsync(ClientOptions options)
+    public class TarantoolClientPool: IDisposable
+    {
+        private const int PoolSize = 5;
+
+        private readonly Box[] _clientPool;
+        private readonly Random _random;
+        private readonly SemaphoreSlim[] _connectionLocks;
+        private readonly ILogger<TarantoolClientPool> _logger;
+
+        public TarantoolClientPool(ILogger<TarantoolClientPool> logger)
         {
-            if (_tarantoolClient == null)
+            _logger = logger;
+            _clientPool = new Box[PoolSize];
+            _connectionLocks = new SemaphoreSlim[PoolSize];
+            _random = new Random(42);
+    
+
+            InitializeLocks();
+        }
+
+        private void InitializeLocks()
+        {
+            for (int i = 0; i < PoolSize; i++)
             {
-                await _connectionLock.WaitAsync();
-                
-                if (_tarantoolClient == null)
+                _connectionLocks[i] = new SemaphoreSlim(1, 1);
+            }
+        }
+
+        public async ValueTask<Box> GetConnectedClientAsync(TarantoolConnectionOptions options)
+        {
+            var currentId = _random.Next(PoolSize);
+            var client = await GetClient(options, currentId);
+
+            await ConnectClient(client, currentId);
+
+            return client;
+        }
+
+        private async ValueTask<Box> GetClient(TarantoolConnectionOptions options, int currentId)
+        {
+            if (_clientPool[currentId] != null) return _clientPool[currentId];
+
+            await ExecuteInLock(currentId, () =>
+            {
+                if (_clientPool[currentId] == null)
                 {
-                    try
-                    {
-                        _tarantoolClient = new Box(options);
-                        await _tarantoolClient.Connect();
-                    }
-                    catch (Exception e)
-                    {
-                      
-                    }
+                    _clientPool[currentId] = new Box(CreateTarantoolOptions(options));
+
+                    _logger.LogInformation($"Created tarantool client with id {currentId}");
                 }
 
-                _connectionLock.Release();
+                return Task.CompletedTask;
+            });
+
+            return _clientPool[currentId];
+        }
+
+        private async ValueTask ConnectClient(Box client, int currentId)
+        {
+            if (client.IsConnected) return;
+
+            await ExecuteInLock(currentId, async () => await client.Connect());
+        }
+
+        private async Task ExecuteInLock(int currentId, Func<Task> action)
+        {
+            var currentLock = _connectionLocks[currentId];
+            await currentLock.WaitAsync();
+
+            await action.Invoke();
+            
+            currentLock.Release();
+        }
+
+        private ClientOptions CreateTarantoolOptions(TarantoolConnectionOptions options)
+        {
+            var connectionString = $"{options.Host}:{options.Port}";
+            return new ClientOptions(connectionString, new StringWriterLog());
+        }
+
+        public void Dispose()
+        {
+            foreach (var client in _clientPool)
+            {
+                client.Dispose();
+            }
+
+            foreach (var connectionLock in _connectionLocks)
+            {
+                connectionLock.Dispose();
             }
         }
     }
