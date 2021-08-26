@@ -23,3 +23,4 @@ Implementation notes:
 2. [Task 2](docs/task2/README.md) - MySQL Indexes.
 3. [Task 3](docs/task3/README.md) - Queues and caching.
 4. [Task 4](docs/task4/README.md) - MySQL replication.
+5. [Task 5](docs/task5/README.md) - In-Memory DBMS (Tarantool).
