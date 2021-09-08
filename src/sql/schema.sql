@@ -68,6 +68,7 @@ CREATE TABLE IF NOT EXISTS  `ChatMember` (
 CREATE TABLE IF NOT EXISTS  `ChatMessage` (
     `Id` BIGINT NOT NULL AUTO_INCREMENT,
     `ChatId` BIGINT NOT NULL,  
+    `SenderId` BIGINT NOT NULL,  
     `ChatLocalId` INTEGER NOT NULL, 
     `Text` TEXT NOT NULL, 
     `Created` DATETIME NOT NULL,
