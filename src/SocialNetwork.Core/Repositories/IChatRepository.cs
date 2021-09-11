@@ -6,18 +6,19 @@ namespace SocialNetwork.Core.Repositories
 {
     public interface IChatMessageRepository
     {
-        Task<ICollection<ChatMessage>> GetMessages(long chatId, int page, int pageSize);
-        Task CreateMessage(ChatMessage message);
+        Task<ICollection<ChatMessage>> GetMessagesAsync(long chatId, int page, int pageSize);
+        Task CreateMessageAsync(ChatMessage message);
     }
 
     public interface IChatMemberRepository
     {
-        Task<ICollection<ChatMember>> GetUserChats(long userId);
-        Task AddMember(ChatMember member);
+        Task<ICollection<ChatMember>> GetUserChatsAsync(long userId);
+        Task<ICollection<ChatMember>> GetChatMembersAsync(long chatId);
+        Task AddMemberAsync(ChatMember member);
     }
 
     public interface IChatRepository
     {
-        Task CreateChat(Chat chat);
+        Task<Chat> CreateChatAsync(Chat chat);
     }
 }

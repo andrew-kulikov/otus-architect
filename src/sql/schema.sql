@@ -62,7 +62,10 @@ CREATE TABLE IF NOT EXISTS  `ChatMember` (
     `Id` BIGINT NOT NULL AUTO_INCREMENT,
     `ChatId` BIGINT NOT NULL,
     `UserId` BIGINT NOT NULL,
-    CONSTRAINT `PK_ChatMember` PRIMARY KEY (`Id`)) ENGINE = INNODB;
+    CONSTRAINT `PK_ChatMember` PRIMARY KEY (`Id`),
+    CONSTRAINT `FK_ChatMember_UserId_UserProfile_Id` 
+        FOREIGN KEY (`UserId`) 
+        REFERENCES `UserProfile` (`UserId`)) ENGINE = INNODB;
 
 
 CREATE TABLE IF NOT EXISTS  `ChatMessage` (

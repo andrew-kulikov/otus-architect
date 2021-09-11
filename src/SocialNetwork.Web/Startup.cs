@@ -77,7 +77,12 @@ namespace SocialNetwork.Web
             services.AddScoped<IUserProfileRepository, UserProfileRepository>();
             services.AddScoped<IFriendshipRepository, FriendshipRepository>();
             services.AddScoped<IUserPostRepository, UserPostRepository>();
+           
+            services.AddScoped<IChatMemberRepository, ChatMemberRepository>();
+            services.AddScoped<IChatMessageRepository, ChatMessageRepository>();
+            services.AddScoped<IChatRepository, ChatRepository>();
 
+            services.AddScoped<IChatService, ChatService>();
             services.AddScoped<IFriendshipService, FriendshipService>();
             services.AddScoped<IUserPostService, UserPostService>();
             services.AddScoped<IUserProfileSearchService, DefaultUserProfileSearchService>();

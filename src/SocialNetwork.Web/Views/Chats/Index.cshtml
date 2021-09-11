@@ -1,4 +1,4 @@
-﻿@model SocialNetwork.Web.ViewModels.FriendsViewModel
+﻿@model SocialNetwork.Web.ViewModels.ChatsViewModel
 
 @{
     Layout = "../_Layout";
@@ -6,5 +6,11 @@
 }
 
 <div class="chats-container">
-
+    @foreach (var peer in Model.Chats)
+    {
+        <div class="chat-container">
+            @peer.UserProfile.FirstName + " " @peer.UserProfile.LastName
+            <a>Chat!</a>
+        </div>
+    }
 </div>

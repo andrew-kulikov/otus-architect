@@ -17,7 +17,7 @@ namespace SocialNetwork.Infrastructure.Repositories
             _dbContext = dbContext;
         }
 
-        public async Task<ICollection<ChatMessage>> GetMessages(long chatId, int page, int pageSize)
+        public async Task<ICollection<ChatMessage>> GetMessagesAsync(long chatId, int page, int pageSize)
         {
             const string sql = @"select * from ChatMessage where ChatId = @ChatId order by ChatLocalId desc limit @Limit offset @Offset";
 
@@ -34,7 +34,7 @@ namespace SocialNetwork.Infrastructure.Repositories
             });
         }
 
-        public async Task CreateMessage(ChatMessage message)
+        public async Task CreateMessageAsync(ChatMessage message)
         {
             const string sql = @"insert into ChatMessage (ChatId, SenderId, ChatLocalId, Text, Created, Updated, IsDeleted)
                                  values (@ChatId, @SenderId, @ChatLocalId, @Text, @Created, @Updated, @IsDeleted)";

@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using SocialNetwork.Core.Entities;
 
 namespace SocialNetwork.Web.ViewModels
 {
     public class ChatsViewModel
     {
-        public ICollection<Chat> ChatMembers { get; set; }
+        public ICollection<ChatMember> Chats { get; set; }
     }
 }
