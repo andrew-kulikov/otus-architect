@@ -9,8 +9,18 @@
     @foreach (var peer in Model.Chats)
     {
         <div class="chat-container">
-            @peer.UserProfile.FirstName + " " @peer.UserProfile.LastName
-            <a>Chat!</a>
+            <div>
+                @peer.UserProfile.FirstName @peer.UserProfile.LastName
+            </div>
+            <div>
+                @{
+                    var routeData = new Dictionary<string, string>
+                    {
+                        {"chatId", @peer.ChatId.ToString()}
+                    };
+                }
+                <a asp-action="Chat" asp-controller="Chats" asp-all-route-data="@routeData">Chat!</a>
+            </div>
         </div>
     }
 </div>

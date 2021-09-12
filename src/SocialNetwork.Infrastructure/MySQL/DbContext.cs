@@ -68,7 +68,7 @@ namespace SocialNetwork.Infrastructure.MySQL
 
         private async Task OpenWriteConnectionAsync()
         {
-            if (!_isWriteConnectionOpen)
+            if (!IsWriteConnectionOpen)
             {
                 await _writeConnection.OpenAsync();
 
@@ -78,7 +78,7 @@ namespace SocialNetwork.Infrastructure.MySQL
 
         private async Task OpenReadConnectionAsync()
         {
-            if (!_isReadConnectionOpen)
+            if (!IsReadConnectionOpen)
             {
                 await _readConnection.OpenAsync();
 
@@ -86,12 +86,22 @@ namespace SocialNetwork.Infrastructure.MySQL
             }
         }
 
+        private bool IsWriteConnectionOpen =>
+            _writeConnection.Equals(_readConnection)
+                ? _isWriteConnectionOpen || _isReadConnectionOpen
+                : _isWriteConnectionOpen;
+
+        private bool IsReadConnectionOpen =>
+            _writeConnection.Equals(_readConnection)
+                ? _isWriteConnectionOpen || _isReadConnectionOpen
+                : _isReadConnectionOpen;
+
         public async ValueTask DisposeAsync()
         {
             await SaveChangesAsync().ConfigureAwait(false);
 
-            if (_isReadConnectionOpen) await _readConnection.CloseAsync().ConfigureAwait(false);
-            if (_isWriteConnectionOpen) await _writeConnection.CloseAsync().ConfigureAwait(false);
+            if (IsReadConnectionOpen) await _readConnection.CloseAsync().ConfigureAwait(false);
+            if (IsWriteConnectionOpen) await _writeConnection.CloseAsync().ConfigureAwait(false);
         }
 
         public void Dispose()

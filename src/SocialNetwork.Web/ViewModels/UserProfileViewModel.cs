@@ -16,5 +16,8 @@ namespace SocialNetwork.Web.ViewModels
         public bool IsUserRequester { get; set; }
         public DateTime FriendshipCreated { get; set; }
         public FriendshipStatus FriendshipStatus { get; set; }
+
+        public bool ChatCreated { get; set; }
+        public long? ChatId { get; set; }
     }
 }

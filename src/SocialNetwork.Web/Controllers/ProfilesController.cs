@@ -21,18 +21,21 @@ namespace SocialNetwork.Web.Controllers
         private readonly IFriendshipService _friendshipService;
         private readonly IMapper _mapper;
         private readonly IUserProfileSearchService _profileSearchService;
+        private readonly IChatService _chatService;
 
         public ProfilesController(
             IMapper mapper,
             IUserContext userContext, 
             IUserProfileRepository userProfileRepository,
             IFriendshipService friendshipService, 
-            IUserProfileSearchService profileSearchService) : base(userContext)
+            IUserProfileSearchService profileSearchService, 
+            IChatService chatService) : base(userContext)
         {
             _userProfileRepository = userProfileRepository;
             _mapper = mapper;
             _friendshipService = friendshipService;
             _profileSearchService = profileSearchService;
+            _chatService = chatService;
         }
 
         public async Task<IActionResult> Index(int page, int pageSize)
@@ -75,8 +78,9 @@ namespace SocialNetwork.Web.Controllers
         {
             var userProfile = await _userProfileRepository.GetUserProfileAsync(userId);
             var friendship = await _friendshipService.GetFriendshipAsync(User.GetUserId(), userId);
+            var chat = await _chatService.FindChatAsync(User.GetUserId(), userId);
 
-            return View(BuildProfileViewModel(userProfile, friendship));
+            return View(BuildProfileViewModel(userProfile, friendship, chat));
         }
 
         private ICollection<UserProfile> FilterOtherUsers(ICollection<UserProfile> profiles) =>
@@ -92,7 +96,7 @@ namespace SocialNetwork.Web.Controllers
             return (page, pageSize);
         }
 
-        private UserProfileViewModel BuildProfileViewModel(UserProfile userProfile, Friendship friendship)
+        private UserProfileViewModel BuildProfileViewModel(UserProfile userProfile, Friendship friendship, ChatMember chat)
         {
             var model = _mapper.Map<UserProfile, UserProfileViewModel>(userProfile);
 
@@ -103,6 +107,12 @@ namespace SocialNetwork.Web.Controllers
                 model.FriendshipStatus = friendship.Status;
                 model.IsUserRequester = userProfile.UserId == friendship.AddresseeId;
                 model.FriendshipCreated = friendship.Created;
+            }
+
+            if (chat != null)
+            {
+                model.ChatCreated = true;
+                model.ChatId = chat.ChatId;
             }
 
             return model;

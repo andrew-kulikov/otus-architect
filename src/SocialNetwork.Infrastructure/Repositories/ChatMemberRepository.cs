@@ -45,7 +45,7 @@ namespace SocialNetwork.Infrastructure.Repositories
 
                         return chatMember;
                     },
-                    new { ChatId = chatId },
+                    new {ChatId = chatId},
                     splitOn: "UserId");
 
                 return result.ToList();
@@ -61,6 +61,32 @@ namespace SocialNetwork.Infrastructure.Repositories
                 member.ChatId,
                 member.UserId
             }));
+        }
+
+        public async Task<ChatMember> FindChatAsync(long userId, long peerId)
+        {
+            const string sql = @"select *, COUNT(*) as cnt from ChatMember 
+                                 where UserId = @UserId or UserId = @PeerId
+                                 GROUP by ChatId
+                                 HAVING cnt = 2";
+
+            return await _dbContext.ExecuteQueryAsync(connection => 
+                connection.QuerySingleOrDefaultAsync<ChatMember>(sql, new {UserId = userId, PeerId = peerId}));
+        }
+
+        public async Task<ChatMember> FindPeerAsync(long chatId, long userId)
+        {
+            const string sql = @"select * from ChatMember 
+                                 where ChatId = @ChatId and UserId != @UserId";
+
+            return await _dbContext.ExecuteQueryAsync(async connection =>
+            {
+                var result = await connection.QuerySingleAsync<ChatMember>(
+                    sql,
+                    new { ChatId = chatId, UserId = userId });
+
+                return result;
+            });
         }
     }
 }

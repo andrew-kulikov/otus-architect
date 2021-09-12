@@ -15,6 +15,8 @@ namespace SocialNetwork.Core.Repositories
         Task<ICollection<ChatMember>> GetUserChatsAsync(long userId);
         Task<ICollection<ChatMember>> GetChatMembersAsync(long chatId);
         Task AddMemberAsync(ChatMember member);
+        Task<ChatMember> FindChatAsync(long userId, long peerId);    
+        Task<ChatMember> FindPeerAsync(long chatId, long userId);
     }
 
     public interface IChatRepository

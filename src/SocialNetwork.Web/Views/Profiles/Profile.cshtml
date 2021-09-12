@@ -30,15 +30,31 @@
             <p>Friend request sent</p>
         }
     }
+    
+    @if (Model.ChatCreated)
+    {
+        <a id="go-to-chat-button">Go to chat</a>
+    }
+    else
+    {
+        <button id="create-chat-button">Create chat</button>
+    }
 </div>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function(event) { 
+    document.addEventListener("DOMContentLoaded", function(event) {
         if (document.getElementById("add-friend-button")) {
             document.getElementById("add-friend-button").onclick = function () {
-                console.log("click");
                 fetch("@Url.Action("AddFriend", "Friends", new { userId = @Model.UserId })", { method: 'POST' })
                     .then(data => alert("success, refresh page"))
+                    .catch(data => alert("error: " + data));
+            }
+        }
+
+        if (document.getElementById("create-chat-button")) {
+            document.getElementById("create-chat-button").onclick = function () {
+                fetch("@Url.Action("CreateChat", "Chats", new { userId = @Model.UserId })", { method: 'POST' })
+                    .then(data => window.location.assign("@Url.Action("Index", "Chats")"))
                     .catch(data => alert("error: " + data));
             }
         }

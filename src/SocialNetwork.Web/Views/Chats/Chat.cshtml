@@ -1,0 +1,61 @@
+﻿@model SocialNetwork.Web.ViewModels.ChatViewModel
+
+@{
+    Layout = "../_Layout";
+    ViewBag.Title = "Chat - " + Model.Peer.UserId;
+}
+
+<div class="chat-messages">
+    <div class="chat-messages-container">
+        @foreach (var message in Model.Messages)
+        {
+            <div class="chat-message-container">
+                <div class="chat-message-date">
+                    @message.Created
+                </div>
+                <div class="chat-message-text">
+                    @message.Text
+                </div>
+            </div>
+        }
+    </div>
+
+
+    <br/>
+
+    <div class="chat-message-input">
+        <textarea id="message-input"></textarea>
+        <button id="send-message-button">Send!</button>
+    </div>
+
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded",
+        function(event) {
+
+            if (document.getElementById("send-message-button")) {
+                document.getElementById("send-message-button").onclick = function() {
+                    var messageText = document.getElementById('message-input').value;
+
+                    if (messageText && messageText.length) {
+                        var requestModel = {
+                            text: messageText,
+                            chatId: @Model.ChatId
+                        };
+
+                        fetch('@Url.Action("CreateMessage", "Chats")',
+                                {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json'
+                                    },
+                                    body: JSON.stringify(requestModel)
+                                })
+                            .then(data => window.location.reload())
+                            .catch(data => alert("error: " + data));
+                    }
+                };
+            }
+        });
+</script>
