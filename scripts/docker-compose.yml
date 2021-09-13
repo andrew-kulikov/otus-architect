@@ -15,6 +15,7 @@ services:
       - '3306'
     volumes:
       - my-db:/var/lib/mysql
+      - ./config/mysql_custom.cnf:/etc/mysql/conf.d/mysql_custom.cnf
   # rabbitmq:
   #   image: rabbitmq:3-management-alpine
   #   container_name: 'rabbitmq'
