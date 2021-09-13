@@ -101,3 +101,19 @@
 .container {
     margin-left: 160px;
 }
+
+.chat-message-container {
+    display: flex;
+}
+
+.chat-message-sender {
+    width: 60px;
+}
+
+.message-peer {
+    background-color: antiquewhite;
+}
+
+.message-own {
+    background-color: white;
+}

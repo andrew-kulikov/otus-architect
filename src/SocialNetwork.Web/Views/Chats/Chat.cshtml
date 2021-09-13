@@ -9,12 +9,23 @@
     <div class="chat-messages-container">
         @foreach (var message in Model.Messages)
         {
-            <div class="chat-message-container">
-                <div class="chat-message-date">
-                    @message.Created
+            var messageClass = message.SenderId != Model.UserId ? "message-peer" : "message-own";
+
+            <div class="chat-message-container @messageClass">
+                <div class="chat-message-sender">
+                    @if (message.SenderId != Model.UserId)
+                    {
+                        <span> @Model.Peer.FirstName : </span>
+                    }
                 </div>
-                <div class="chat-message-text">
-                    @message.Text
+                
+                <div class="chat-message-body">
+                    <div class="chat-message-date">
+                        @message.Created
+                    </div>
+                    <div class="chat-message-text">
+                        @message.Text
+                    </div>
                 </div>
             </div>
         }
