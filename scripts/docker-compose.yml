@@ -16,6 +16,48 @@ services:
     volumes:
       - my-db:/var/lib/mysql
       - ./config/mysql_custom.cnf:/etc/mysql/conf.d/mysql_custom.cnf
+  messages-db-1:
+    image: mysql:8.0
+    container_name: messages-db-1
+    restart: always
+    environment:
+      MYSQL_DATABASE: 'db'
+      MYSQL_USER: 'zukk'
+      MYSQL_PASSWORD: 'zukk'
+      MYSQL_ROOT_PASSWORD: 'admin'
+    ports:
+      - '3307:3306'
+    expose:
+      - '3306'
+    volumes:
+      - messages-db-1:/var/lib/mysql
+  messages-db-2:
+    image: mysql:8.0
+    container_name: messages-db-2
+    restart: always
+    environment:
+      MYSQL_DATABASE: 'db'
+      MYSQL_USER: 'zukk'
+      MYSQL_PASSWORD: 'zukk'
+      MYSQL_ROOT_PASSWORD: 'admin'
+    ports:
+      - '3308:3306'
+    expose:
+      - '3306'
+    volumes:
+      - messages-db-2:/var/lib/mysql
+  proxysql:
+    build:
+      context: proxysql
+      dockerfile: Dockerfile
+    container_name: proxysql
+    volumes:
+      - proxysql-data:/var/lib/proxysql
+    ports:
+      # Mysql Client Port
+      - "6033:6033"
+      # Mysql Admin Port
+      - "6032:6032"
   # rabbitmq:
   #   image: rabbitmq:3-management-alpine
   #   container_name: 'rabbitmq'
@@ -45,8 +87,12 @@ services:
     volumes:
       - tarantool-data:/var/lib/tarantool
       - ./tarantool:/usr/local/share/tarantool
+
 volumes:
   my-db:
+  messages-db-1:
+  messages-db-2:
+  proxysql-data:
   rabbitmq-data:
   rabbitmq-log:
   redis-data:
