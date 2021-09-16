@@ -11,7 +11,6 @@ admin_variables=
 {
     admin_credentials="admin:admin;radmin:radmin"
     mysql_ifaces="0.0.0.0:6032"
-    debug=true
 }
 
 # Contains global variables that control the functionality for handling the incoming MySQL traffic.
@@ -23,8 +22,8 @@ mysql_variables=
     interfaces="0.0.0.0:6033"
     default_schema="information_schema"
     server_version="8.0.17 (ProxySQL)"
-    monitor_username="test"
-    monitor_password="pzjqUkMnc7vfNHET"
+    monitor_username="monitor"
+    monitor_password="monitor"
     monitor_ping_interval=10000
 }
 
@@ -54,8 +53,8 @@ mysql_servers =
 mysql_users:
 (
     {
-    	username = "test"
-    	password = "pzjqUkMnc7vfNHET"
+    	username = "root"
+    	password = "admin"
     	default_hostgroup = 0
     	max_connections=200
     	default_schema="information_schema"
