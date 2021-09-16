@@ -6,13 +6,13 @@ using SocialNetwork.Infrastructure.Configuration;
 
 namespace SocialNetwork.Infrastructure.MySQL
 {
-    public class SqlConnectionFactory
+    public class SqlConnectionFactory<TSettings> where TSettings: class, IReplicationGroupConnectionStrings
     {
-        private readonly IOptions<ReplicationGroupConnectionStrings> _replicationGroupOptions;
+        private readonly IOptions<TSettings> _replicationGroupOptions;
         private readonly Random _random;
         private MySqlConnection _masterConnection;
 
-        public SqlConnectionFactory(IOptions<ReplicationGroupConnectionStrings> replicationGroupOptions)
+        public SqlConnectionFactory(IOptions<TSettings> replicationGroupOptions)
         {
             _replicationGroupOptions = replicationGroupOptions;
             _random = new Random();

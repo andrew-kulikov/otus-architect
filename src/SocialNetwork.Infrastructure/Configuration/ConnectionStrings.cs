@@ -7,7 +7,17 @@ namespace SocialNetwork.Infrastructure.Configuration
         public string SocialNetworkDb { get; set; }
     }
 
-    public class ReplicationGroupConnectionStrings
+    public interface IReplicationGroupConnectionStrings
+    {
+        List<ReplicationGroupConnectionString> ConnectionStrings { get; set; }
+    }
+
+    public class ReplicationGroupConnectionStrings : IReplicationGroupConnectionStrings
+    {
+        public List<ReplicationGroupConnectionString> ConnectionStrings { get; set; }
+    }
+
+    public class MessagesReplicationGroupConnectionStrings : IReplicationGroupConnectionStrings
     {
         public List<ReplicationGroupConnectionString> ConnectionStrings { get; set; }
     }

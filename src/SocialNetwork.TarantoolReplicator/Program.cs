@@ -76,7 +76,7 @@ namespace SocialNetwork.TarantoolReplicator
             return max.Item1;
         }
 
-        private static SqlConnectionFactory BuildConnectionFactory()
+        private static SqlConnectionFactory<ReplicationGroupConnectionStrings> BuildConnectionFactory()
         {
             var replicationGroup = new ReplicationGroupConnectionStrings
             {
@@ -91,7 +91,7 @@ namespace SocialNetwork.TarantoolReplicator
                 }
             };
 
-            return new SqlConnectionFactory(new OptionsWrapper<ReplicationGroupConnectionStrings>(replicationGroup));
+            return new SqlConnectionFactory<ReplicationGroupConnectionStrings>(new OptionsWrapper<ReplicationGroupConnectionStrings>(replicationGroup));
         }
 
         private static async Task<ICollection<UserProfile>> LoadUserProfiles(long startId, int count)

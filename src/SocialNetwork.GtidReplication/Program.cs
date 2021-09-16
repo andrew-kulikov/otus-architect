@@ -27,7 +27,7 @@ namespace SocialNetwork.GtidReplication
             Console.WriteLine($"Remaining commits: {ExpectedCommits - _commitsWritten}");
         }
 
-        private static SqlConnectionFactory BuildConnectionFactory()
+        private static SqlConnectionFactory<ReplicationGroupConnectionStrings> BuildConnectionFactory()
         {
             var replicationGroup = new ReplicationGroupConnectionStrings
             {
@@ -42,7 +42,7 @@ namespace SocialNetwork.GtidReplication
                 }
             };
 
-            return new SqlConnectionFactory(new OptionsWrapper<ReplicationGroupConnectionStrings>(replicationGroup));
+            return new SqlConnectionFactory<ReplicationGroupConnectionStrings>(new OptionsWrapper<ReplicationGroupConnectionStrings>(replicationGroup));
         }
 
         public static async Task InsertNumberAsync(int number)

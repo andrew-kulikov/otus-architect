@@ -61,6 +61,7 @@ namespace SocialNetwork.Web
 
             services.AddOptions<ConnectionStrings>().Bind(Configuration.GetSection("ConnectionStrings"));
             services.AddOptions<ReplicationGroupConnectionStrings>().Bind(Configuration.GetSection("MySQL"));
+            services.AddOptions<MessagesReplicationGroupConnectionStrings>().Bind(Configuration.GetSection("MessagesCluster"));
             services.AddOptions<TarantoolConnectionOptions>().Bind(Configuration.GetSection("Tarantool"));
 
             services.AddAutoMapper(typeof(Startup).Assembly);
@@ -69,9 +70,11 @@ namespace SocialNetwork.Web
             services.AddScoped<IAuthenticationService, AuthenticationService>();
             services.AddScoped<IUserContext, UserContext>();
 
-            services.AddScoped<DbContext>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
-            services.AddScoped<SqlConnectionFactory>();
+
+            services.AddScoped<DbContext>();
+            services.AddScoped<SqlConnectionFactory<ReplicationGroupConnectionStrings>>();
+            services.AddScoped<SqlConnectionFactory<MessagesReplicationGroupConnectionStrings>>();
 
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IUserProfileRepository, UserProfileRepository>();

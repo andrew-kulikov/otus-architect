@@ -40,7 +40,7 @@ namespace SocialNetwork.UserGenerator
                 }
             };
 
-            var connectionFactory = new SqlConnectionFactory(new OptionsWrapper<ReplicationGroupConnectionStrings>(replicationGroup));
+            var connectionFactory = new SqlConnectionFactory<ReplicationGroupConnectionStrings>(new OptionsWrapper<ReplicationGroupConnectionStrings>(replicationGroup));
 
             var fakeProfile = new Faker<UserProfile>()
                 .RuleFor(u => u.FirstName, (f, u) => f.Name.FirstName())
@@ -77,7 +77,7 @@ namespace SocialNetwork.UserGenerator
                 async usersBatch => await RegisterProfilesBatchAsync(usersBatch.ToList(), connectionFactory));
         }
 
-        private static async Task<List<User>> RelinkUsers(List<User> users, SqlConnectionFactory connectionFactory)
+        private static async Task<List<User>> RelinkUsers(List<User> users, SqlConnectionFactory<ReplicationGroupConnectionStrings> connectionFactory)
         {
             var dbContext = new DbContext(connectionFactory);
             var userRepository = new UserRepository(dbContext);
@@ -95,7 +95,7 @@ namespace SocialNetwork.UserGenerator
             }).ToList();
         }
 
-        public static async Task RegisterUsersBatchAsync(List<User> usersBatch, SqlConnectionFactory connectionFactory)
+        public static async Task RegisterUsersBatchAsync(List<User> usersBatch, SqlConnectionFactory<ReplicationGroupConnectionStrings> connectionFactory)
         {
             var dbContext = new DbContext(connectionFactory);
             var unitOfWork = new UnitOfWork(dbContext);
@@ -114,7 +114,7 @@ namespace SocialNetwork.UserGenerator
             Console.WriteLine($"Batch {usersBatch.First().Id}. Elapsed: {sw.Elapsed}");
         }
 
-        public static async Task RegisterProfilesBatchAsync(List<User> usersBatch, SqlConnectionFactory connectionFactory)
+        public static async Task RegisterProfilesBatchAsync(List<User> usersBatch, SqlConnectionFactory<ReplicationGroupConnectionStrings> connectionFactory)
         {
             var dbContext = new DbContext(connectionFactory);
             var unitOfWork = new UnitOfWork(dbContext);

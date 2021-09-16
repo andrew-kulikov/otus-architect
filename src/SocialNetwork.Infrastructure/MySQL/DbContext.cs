@@ -3,10 +3,26 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MySql.Data.MySqlClient;
+using SocialNetwork.Infrastructure.Configuration;
 
 namespace SocialNetwork.Infrastructure.MySQL
 {
-    public class DbContext : IAsyncDisposable, IDisposable
+    public class MessagesDbContext : DbContext<MessagesReplicationGroupConnectionStrings>
+    {
+        public MessagesDbContext(SqlConnectionFactory<MessagesReplicationGroupConnectionStrings> connectionFactory) : base(connectionFactory)
+        {
+        }
+    }
+
+    public class DbContext : DbContext<ReplicationGroupConnectionStrings>
+    {
+        public DbContext(SqlConnectionFactory<ReplicationGroupConnectionStrings> connectionFactory) : base(connectionFactory)
+        {
+        }
+    }
+
+    public class DbContext<TSettings> : IAsyncDisposable, IDisposable
+        where TSettings: class, IReplicationGroupConnectionStrings
     {
         private readonly List<Func<MySqlConnection, Task>> _commands;
         private readonly MySqlConnection _writeConnection;
@@ -15,7 +31,7 @@ namespace SocialNetwork.Infrastructure.MySQL
         private bool _isWriteConnectionOpen;
         private bool _isReadConnectionOpen;
 
-        public DbContext(SqlConnectionFactory connectionFactory)
+        public DbContext(SqlConnectionFactory<TSettings> connectionFactory)
         {
             _writeConnection = connectionFactory.CreateMasterConnection();
             _readConnection = connectionFactory.CreateReadConnection();
