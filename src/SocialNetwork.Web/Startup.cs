@@ -73,6 +73,7 @@ namespace SocialNetwork.Web
             services.AddScoped<IUnitOfWork, UnitOfWork>();
 
             services.AddScoped<DbContext>();
+            services.AddScoped<MessagesDbContext>();
             services.AddScoped<SqlConnectionFactory<ReplicationGroupConnectionStrings>>();
             services.AddScoped<SqlConnectionFactory<MessagesReplicationGroupConnectionStrings>>();
 

@@ -57,7 +57,7 @@ mysql_users:
     	password = "admin"
     	default_hostgroup = 0
     	max_connections=200
-    	default_schema="information_schema"
+    	default_schema="ChatMessages"
     	active = 1
     }
 )
@@ -70,15 +70,17 @@ mysql_query_rules:
 (
     {
         rule_id=1
+        username=root
         active=1
-        match_pattern="INSERT INTO customers \(country, name, city\) VALUES \('France'"
-        destination_hostgroup=1
+        match_pattern="\/\*\s*shard0000\s*\*."
+        destination_hostgroup=0
         apply=1
     },
     {
         rule_id=2
+        username=root
         active=1
-        match_pattern="country = 'France'"
+        match_pattern="\/\*\s*shard0001\s*\*."
         destination_hostgroup=1
         apply=1
     },

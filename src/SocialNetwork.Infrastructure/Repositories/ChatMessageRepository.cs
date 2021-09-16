@@ -10,16 +10,16 @@ namespace SocialNetwork.Infrastructure.Repositories
 {
     public class ChatMessageRepository : IChatMessageRepository
     {
-        private readonly DbContext _dbContext;
+        private readonly MessagesDbContext _dbContext;
 
-        public ChatMessageRepository(DbContext dbContext)
+        public ChatMessageRepository(MessagesDbContext dbContext)
         {
             _dbContext = dbContext;
         }
 
         public async Task<ICollection<ChatMessage>> GetMessagesAsync(long chatId, int page, int pageSize)
         {
-            const string sql = @"select * from ChatMessage where ChatId = @ChatId order by ChatLocalId desc limit @Limit offset @Offset";
+            var sql = @$"select /* {ResolveShard(chatId)} */ * from ChatMessage where ChatId = @ChatId order by ChatLocalId desc limit @Limit offset @Offset";
 
             return await _dbContext.ExecuteQueryAsync(async connection =>
             {
@@ -36,10 +36,19 @@ namespace SocialNetwork.Infrastructure.Repositories
 
         public async Task CreateMessageAsync(ChatMessage message)
         {
-            const string sql = @"insert into ChatMessage (ChatId, SenderId, ChatLocalId, Text, Created, Updated, IsDeleted)
-                                 values (@ChatId, @SenderId, @ChatLocalId, @Text, @Created, @Updated, @IsDeleted)";
+            var sql = @$"insert /* {ResolveShard(message.ChatId)} */ into ChatMessage (ChatId, SenderId, ChatLocalId, Text, Created, Updated, IsDeleted)
+                         values (@ChatId, @SenderId, @ChatLocalId, @Text, @Created, @Updated, @IsDeleted)";
 
-            await _dbContext.AddCommandAsync(connection => connection.ExecuteAsync(sql, message));
+            await _dbContext.ExecuteQueryAsync(connection => connection.ExecuteAsync(sql, message), true);
+        }
+
+        private static string ResolveShard(long chatId) =>
+            $"shard{ResolveShardId(chatId):D4}";
+
+        private static int ResolveShardId(long chatId)
+        {
+            if (chatId <= 3) return 0;
+            return 1;
         }
     }
 }
