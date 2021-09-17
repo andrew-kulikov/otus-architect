@@ -77,7 +77,6 @@ CREATE TABLE IF NOT EXISTS  `ChatMessage` (
     `Created` DATETIME NOT NULL,
     `Updated` DATETIME NOT NULL,
     `IsDeleted` BOOLEAN NOT NULL,
-    CONSTRAINT `PK_Message` PRIMARY KEY (`Id`),
-    CONSTRAINT `FK_ChatMessage_ChatId_Chat_Id` 
-        FOREIGN KEY (`ChatId`) 
-        REFERENCES `Chat` (`Id`)) ENGINE = INNODB;
+    CONSTRAINT `PK_Message` PRIMARY KEY (`Id`)) ENGINE = INNODB;
+    
+alter table ChatMessage add index idx_chatId (ChatId);
