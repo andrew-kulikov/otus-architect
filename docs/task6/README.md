@@ -25,9 +25,7 @@
 
 ### Структура базы данных  
 
-<br/>
-
-```MySQL
+```SQL
 CREATE TABLE IF NOT EXISTS  `Chat` (
     `Id` BIGINT NOT NULL AUTO_INCREMENT,
     `IsPersonal` BOOLEAN NOT NULL,
@@ -85,11 +83,117 @@ alter table ChatMessage add index idx_chatId (ChatId);
 
 ### Алгоритм решардинга
 
-Алгоритм решардинга похож на упрощенную версию алгоритма решардинга / миграции Facebook Messenger
+Алгоритм решардинга похож на упрощенную версию алгоритма решардинга / миграции Facebook Messenger. ProxySQL не поддерживает Consistent Hashing, для этого нужно либо реализовывать свои инструменты, либо пользоваться более сложной схемой решардинга.
 
-1. Запрос попадает в систему через API
-2. Сервис сообщений на основе сконфигурированных промежутков chat_id (range sharding) определяет id шарда, на котором находится данный чат.  
-3. Производится чтение из соответствующего шарда.
+1. Добавляем новый шард
+2. Настраиваем репликацию между новым шардом и тем, с которого хотим перенести данные
+3. Конфигурируем ProxySQL и направляем трафик на оба шарда
+4. Меняем конфигурацию id ренжей для шардов 
+
+<br/>
+
+### Настройка ProxySQL
+
+Для тестовой среды было настроено 2 шарда MySQL и ProxySQL:
+```yaml
+messages-db-1:
+  image: mysql:8.0
+  container_name: messages-db-1
+  restart: always
+  environment:
+    MYSQL_DATABASE: 'db'
+    MYSQL_USER: 'zukk'
+    MYSQL_PASSWORD: 'zukk'
+    MYSQL_ROOT_PASSWORD: 'admin'
+  ports:
+    - '3307:3306'
+  expose:
+    - '3306'
+  volumes:
+    - messages-db-1:/var/lib/mysql
+messages-db-2:
+  image: mysql:8.0
+  container_name: messages-db-2
+  restart: always
+  environment:
+    MYSQL_DATABASE: 'db'
+    MYSQL_USER: 'zukk'
+    MYSQL_PASSWORD: 'zukk'
+    MYSQL_ROOT_PASSWORD: 'admin'
+  ports:
+    - '3308:3306'
+  expose:
+    - '3306'
+  volumes:
+    - messages-db-2:/var/lib/mysql
+proxysql:
+  build:
+    context: proxysql
+    dockerfile: Dockerfile
+  container_name: proxysql
+  volumes:
+    - proxysql-data:/var/lib/proxysql
+  ports:
+    # Mysql Client Port
+    - "6033:6033"
+    # Mysql Admin Port
+    - "6032:6032"
+```
+
+Конфигурация серверов для ProxySQL:
+```conf
+mysql_servers =
+(
+    {
+        address="messages-db-1"
+        port=3306
+        hostgroup=0
+        max_connections=200
+    },
+    {
+        address="messages-db-2"
+        port=3306
+        hostgroup=1
+        max_connections=200
+    }
+)
+```
+
+Конфигурация провил роутинга для ProxySQL:
+```conf
+mysql_query_rules =
+(
+    {
+        rule_id=1
+        username=root
+        active=1
+        match_pattern="\/\*\s*shard0000\s*\*."
+        destination_hostgroup=0
+        apply=1
+    },
+    {
+        rule_id=2
+        username=root
+        active=1
+        match_pattern="\/\*\s*shard0001\s*\*."
+        destination_hostgroup=1
+        apply=1
+    },
+)
+```
+
+Пример запросов:
+```SQL
+select /* shard0001 */ * from ChatMessage 
+where ChatId = 3 
+order by ChatLocalId desc 
+limit 10 offset 0;
+
+---------
+
+insert /* shard0001 */ into ChatMessage (ChatId, SenderId, ChatLocalId, Text, Created, Updated, IsDeleted)
+values (@ChatId, @SenderId, @ChatLocalId, @Text, @Created, @Updated, @IsDeleted)
+```
 
 <br/>
 
@@ -99,5 +203,14 @@ alter table ChatMessage add index idx_chatId (ChatId);
 1. API Gateway для горизонтального масштабирования сервисов сообщений
 2. Запись может масштабироваться горизонтально благодаря брокеру сообщений
 3. База может масштабироваться горизонтально благодаря ProxySQL - добавляем инстансы, указываем в конфигурации.
+4. В слушае добавления чат-ботов, которые будут слать много сообщений, их чаты имеет смысл хранить на отдельных шардах, и обслуживать отдельными consumer'ами, чтобы это никак не влияло на производительность системы для обычных пользователей.
 
 ### Использованные источники
+
+* https://medium.com/pinterest-engineering/sharding-pinterest-how-we-scaled-our-mysql-fleet-3f341e96ca6f
+* https://engineering.fb.com/2018/06/26/core-data/migrating-messenger-storage-to-optimize-performance/
+* https://proxysql.com/documentation/
+* https://www.percona.com/blog/2016/08/30/mysql-sharding-with-proxysql/
+* http://www.tusacentral.com/joomla/index.php/mysql-blogs/193-how-proxysql-deal-with-schema-and-schemaname
+* https://proxysql.com/blog/new-schemaname-routing-algorithm/
+* https://proxysql.com/documentation/configuration-file/
