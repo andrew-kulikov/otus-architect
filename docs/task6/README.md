@@ -209,3 +209,6 @@ values (@ChatId, @SenderId, @ChatLocalId, @Text, @Created, @Updated, @IsDeleted)
 * http://www.tusacentral.com/joomla/index.php/mysql-blogs/193-how-proxysql-deal-with-schema-and-schemaname
 * https://proxysql.com/blog/new-schemaname-routing-algorithm/
 * https://proxysql.com/documentation/configuration-file/
+* https://dzone.com/articles/proxysql-admin-interface-is-not-your-typical-mysql
+* https://proxysql.com/documentation/configuration-file/
+* https://proxysql.com/documentation/password-management/
