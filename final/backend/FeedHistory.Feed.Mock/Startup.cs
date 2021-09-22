@@ -1,4 +1,6 @@
 using System;
+using FeedHistory.Feed.Mock.HostedServices;
+using FeedHistory.Feed.Mock.Hubs;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -21,6 +23,10 @@ namespace FeedHistory.Feed.Mock
         {
             services.AddControllers();
             services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo {Title = "FeedHistory.Feed.Mock", Version = "v1"}); });
+
+            services.AddSignalR().AddJsonProtocol();
+
+            services.AddHostedService<TickSenderService>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -40,7 +46,11 @@ namespace FeedHistory.Feed.Mock
             
             app.UseWebSockets();
 
-            app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+                endpoints.MapHub<FeedHub>("feedHub");
+            });
         }
     }
 }
