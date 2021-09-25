@@ -13,7 +13,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FeedHistory.Service.Synchro
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "feed", "feed", "{4B861DD9-4E57-446B-AC8D-E0C347048DBB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FeedHistory.Feed.Mock", "FeedHistory.Feed.Mock\FeedHistory.Feed.Mock.csproj", "{B91AAE77-8916-4D0D-B1F9-45116F7B215E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FeedHistory.Feed.Mock", "FeedHistory.Feed.Mock\FeedHistory.Feed.Mock.csproj", "{B91AAE77-8916-4D0D-B1F9-45116F7B215E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FeedHistory.Common", "FeedHistory.Common\FeedHistory.Common.csproj", "{568E4F24-21BE-4AB5-8F50-256D0AF7A0DE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -37,6 +39,10 @@ Global
 		{B91AAE77-8916-4D0D-B1F9-45116F7B215E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B91AAE77-8916-4D0D-B1F9-45116F7B215E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B91AAE77-8916-4D0D-B1F9-45116F7B215E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{568E4F24-21BE-4AB5-8F50-256D0AF7A0DE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{568E4F24-21BE-4AB5-8F50-256D0AF7A0DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{568E4F24-21BE-4AB5-8F50-256D0AF7A0DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{568E4F24-21BE-4AB5-8F50-256D0AF7A0DE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using FeedHistory.Common;
 using FeedHistory.Feed.Mock.Generators;
 using FeedHistory.Feed.Mock.Hubs;
 using Microsoft.AspNetCore.SignalR;
@@ -19,15 +21,28 @@ namespace FeedHistory.Feed.Mock.HostedServices
         {
             _hubContext = hubContext;
             _logger = logger;
-            _tickGenerator = new TickGenerator(new List<string> {"AAPL", "TSLA", "MS", "EURUSD"});
+            _tickGenerator = new TickGenerator(new List<string> {"AAPL", "TSLA", "MS", "EURUSD", "BTCUSD"});
         }
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
             _logger.LogInformation("Starting tick sender service...");
 
-            _tickGenerator.Tick += tick => { _hubContext.Clients.Group(tick.Symbol).SendAsync("tick", tick, cancellationToken); };
+            var tickQueue = new ConcurrentQueue<Tick>();
+            var tickSendTask = Task.Factory.StartNew(async () =>
+            {
+                while (!cancellationToken.IsCancellationRequested)
+                {
+                    while (tickQueue.TryDequeue(out var tick))
+                    {
+                        await _hubContext.Clients.Group(tick.Symbol).SendAsync("tick", tick, cancellationToken);
+                    }
 
+                    await Task.Delay(10, cancellationToken);
+                }
+            }, cancellationToken);
+
+            _tickGenerator.Tick += tick => tickQueue.Enqueue(tick);
             _tickGenerator.Start();
 
             return Task.CompletedTask;

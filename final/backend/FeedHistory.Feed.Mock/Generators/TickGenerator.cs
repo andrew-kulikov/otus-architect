@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using FeedHistory.Common;
 
 namespace FeedHistory.Feed.Mock.Generators
 {
@@ -19,9 +20,7 @@ namespace FeedHistory.Feed.Mock.Generators
 
         public void Start()
         {
-            var random = new Random(42);
-            
-            _generators = _symbols.Select(symbol => new SymbolTickGenerator(symbol, random, 100)).ToList();
+            _generators = _symbols.Select(symbol => new SymbolTickGenerator(symbol, new Random(), 100)).ToList();
 
             foreach (var generator in _generators)
             {

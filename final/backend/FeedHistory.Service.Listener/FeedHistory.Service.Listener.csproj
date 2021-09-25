@@ -10,4 +10,8 @@
     <PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.Json" Version="5.0.10" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="5.0.0" />
   </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\FeedHistory.Common\FeedHistory.Common.csproj" />
+  </ItemGroup>
 </Project>

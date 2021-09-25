@@ -1,0 +1,22 @@
+version: "3.8"
+services:
+  mongodb1:
+    image : mongo
+    container_name: mongodb1
+    volumes:
+    - mongodb1-data:/data/db
+    ports:
+    - 27018:27017
+    restart: unless-stopped
+  mongodb2:
+    image : mongo
+    container_name: mongodb2
+    volumes:
+    - mongodb2-data:/data/db
+    ports:
+    - 27019:27017
+    restart: unless-stopped
+
+volumes:
+  mongodb1-data:
+  mongodb2-data:

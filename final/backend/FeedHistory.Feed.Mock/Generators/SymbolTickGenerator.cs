@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using FeedHistory.Common;
 
 namespace FeedHistory.Feed.Mock.Generators
 {
@@ -33,7 +34,8 @@ namespace FeedHistory.Feed.Mock.Generators
                         Ask = _random.NextDouble(),
                         Bid = _random.NextDouble(),
                         Symbol = _symbol,
-                        Volume = _random.NextDouble()
+                        Volume = _random.NextDouble(),
+                        Time = DateTime.UtcNow.ToTimestampMilliseconds()
                     };
 
                     Tick?.Invoke(tick);
