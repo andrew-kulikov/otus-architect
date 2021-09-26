@@ -46,6 +46,24 @@ namespace FeedHistory.Common.Extensions
         public static long FindBarStartMilliseconds(DateTime time, BarPeriod barPeriod) =>
             FindBarStart(time, barPeriod).ToTimestampMilliseconds();
 
+        public static BarPeriod ResolveBarPeriod(string resolution)
+        {
+            return resolution switch
+            {
+                "1" => BarPeriod.M1,
+                "5" => BarPeriod.M5,
+                "15" => BarPeriod.M15,
+                "30" => BarPeriod.M30,
+                "60" => BarPeriod.H1,
+                "240" => BarPeriod.H4,
+                "D1" => BarPeriod.D1,
+                "W1" => BarPeriod.W1,
+                "M1" => BarPeriod.Mo1,
+
+                _ => throw new ArgumentOutOfRangeException(nameof(resolution), resolution, null)
+            };
+        }
+
         private static DateTime GetMinuteDate(this DateTime time) =>
             new DateTime(time.Year, time.Month, time.Day, time.Hour, time.Minute, 0);
 
