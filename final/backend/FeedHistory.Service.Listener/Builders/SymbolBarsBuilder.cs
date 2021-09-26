@@ -7,9 +7,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using FeedHistory.Common;
 using FeedHistory.Common.Extensions;
+using FeedHistory.Service.Listener.Storage;
 using Timer = System.Timers.Timer;
 
-namespace FeedHistory.Service.Listener.Storage
+namespace FeedHistory.Service.Listener.Builders
 {
     public class BarsBuilder: IDisposable
     {

@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using FeedHistory.Common;
+using FeedHistory.Service.Listener.Builders;
 using FeedHistory.Service.Listener.Storage;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.DependencyInjection;
