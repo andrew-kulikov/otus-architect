@@ -27,7 +27,7 @@ namespace FeedHistory.Service.Listener.Builders
 
         public void Cleanup(long tillTime)
         {
-            _currentBars = _currentBars.Where(b => b.Time > tillTime).ToList();
+            _currentBars = _currentBars.Where(b => b.Time >= tillTime).ToList();
             Console.WriteLine($"{_symbol}_{_barPeriod}. Cleanup till {tillTime}");
         }
 
