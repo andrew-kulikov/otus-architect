@@ -9,6 +9,19 @@
         public double Close { get; set; }
         public double Volume { get; set; }
 
+        public Bar Copy()
+        {
+            return new Bar
+            {
+                Time = Time,
+                Open = Open,
+                High = High,
+                Low = Low,
+                Close = Close,
+                Volume = Volume
+            };
+        }
+
         public override string ToString() => $"{Time}|O:{Open}|H:{High}|L:{Low}|C:{Close}";
     }
 

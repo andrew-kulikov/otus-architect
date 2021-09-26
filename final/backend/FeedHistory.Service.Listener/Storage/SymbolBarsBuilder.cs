@@ -4,7 +4,10 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using FeedHistory.Common;
+using FeedHistory.Common.Extensions;
+using Timer = System.Timers.Timer;
 
 namespace FeedHistory.Service.Listener.Storage
 {
@@ -12,57 +15,110 @@ namespace FeedHistory.Service.Listener.Storage
     {
         private readonly ConcurrentQueue<Tick> _pendingTicks;
         private readonly Thread _tickUpdateThread;
+        private readonly Timer _reportTimer;
         private readonly ConcurrentDictionary<string, SymbolBarsBuilder> _barsBuilders;
+        private readonly IBarsRepository _barsRepository;
+        private Dictionary<string, Dictionary<string, long>> _pendingCleanup = null;
+        private readonly object _cleanupLock = new object();
 
-        public BarsBuilder()
+        public BarsBuilder(IBarsRepository barsRepository)
         {
+            _barsRepository = barsRepository;
+
             _pendingTicks = new ConcurrentQueue<Tick>();
             _barsBuilders = new ConcurrentDictionary<string, SymbolBarsBuilder>();
+          
             _tickUpdateThread = new Thread(RunTickThread);
             _tickUpdateThread.Start();
+
+            _reportTimer = new Timer(60_000);
+            _reportTimer.Elapsed += async (e, a) => await BuildAndSaveSnapshotAsync();
+            _reportTimer.Enabled = true;
         }
 
         private void RunTickThread()
         {
             while (true)
             {
-                var chunk = Flush(_pendingTicks);
-                if (chunk.Any())
-                {
-                    foreach (var symbolTicks in chunk.GroupBy(c => c.Symbol))
-                    {
-                        var symbolBarsBuilder = _barsBuilders.GetOrAdd(symbolTicks.Key, symbol =>
-                        {
-                            var builder = new SymbolBarsBuilder(symbol);
+                if (_pendingCleanup != null) Cleanup();
 
-                            builder.Initialize();
-
-                            return builder;
-                        });
-
-                        Console.WriteLine($"Processing chunk for symbol {symbolTicks.Key}. Chunk size: {symbolTicks.Count()}");
-
-                        foreach (var tick in symbolTicks)
-                        {
-                            symbolBarsBuilder.Advance(tick);
-                        }
-                    }
-                }
+                ProcessTicks();
 
                 Thread.Sleep(50);
             }
         }
 
-        private List<Tick> Flush(ConcurrentQueue<Tick> ticks)
+        private void ProcessTicks()
         {
-            var result = new List<Tick>();
-
-            while (!ticks.IsEmpty)
+            var chunk = _pendingTicks.Flush();
+            if (!chunk.Any()) return;
+            
+            foreach (var symbolTicks in chunk.GroupBy(c => c.Symbol))
             {
-                if (ticks.TryDequeue(out var tick)) result.Add(tick);    
-            }
+                var symbolBarsBuilder = _barsBuilders.GetOrAdd(symbolTicks.Key, symbol =>
+                {
+                    var builder = new SymbolBarsBuilder(symbol);
+                    builder.Initialize();
+                    return builder;
+                });
 
-            return result;
+                //Console.WriteLine($"Processing chunk for symbol {symbolTicks.Key}. Chunk size: {symbolTicks.Count()}");
+
+                foreach (var tick in symbolTicks) symbolBarsBuilder.Advance(tick);
+            }
+        }
+
+        private void Cleanup()
+        {
+            lock (_cleanupLock)
+            {
+                var copy = _pendingCleanup.ToDictionary(p => p.Key, p => p.Value);
+                _pendingCleanup = null;
+
+                foreach (var symbolCleanup in copy)
+                {
+                    if (_barsBuilders.TryGetValue(symbolCleanup.Key, out var builder))
+                    {
+                        builder.Cleanup(symbolCleanup.Value);
+                    }
+                }
+            }
+        }
+
+        private async Task BuildAndSaveSnapshotAsync()
+        {
+            var sw = new Stopwatch();
+            sw.Start();
+
+            try
+            {
+                var symbolSnapshots = _barsBuilders.Select(b => b.Value.GetSnapshot()).ToList();
+
+                var snapshot = new BarsSnapshot
+                {
+                    Time = DateTime.UtcNow.ToTimestampMilliseconds(),
+                    SymbolSnapshots = symbolSnapshots
+                };
+
+                var result = await _barsRepository.SaveSnapshotAsync(snapshot);
+
+                Cleanup(result.SymbolTimes);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+            
+            sw.Stop();
+            Console.WriteLine($"Saving report took {sw.Elapsed}");
+        }
+
+        public void Cleanup(Dictionary<string, Dictionary<string, long>> symbolTimes)
+        {
+            lock (_cleanupLock)
+            {
+                _pendingCleanup = symbolTimes;
+            }
         }
 
         public void Advance(Tick tick)
@@ -73,6 +129,7 @@ namespace FeedHistory.Service.Listener.Storage
         public void Dispose()
         {
             _tickUpdateThread.Interrupt();
+            _reportTimer.Enabled = false;
         }
     }
 
@@ -92,7 +149,29 @@ namespace FeedHistory.Service.Listener.Storage
         {
             foreach (var period in Enum.GetValues<BarPeriod>())
             {
-                _periodBuilders.Add(period, new PeriodBarsBuilder(period));
+                _periodBuilders.Add(period, new PeriodBarsBuilder(period, _symbol));
+            }
+        }
+
+        public SymbolBarsSnapshot GetSnapshot()
+        {
+            var periodBars = _periodBuilders.ToDictionary(p => p.Key.ToString(), p => p.Value.GetSnapshot());
+            
+            return new SymbolBarsSnapshot
+            {
+                Symbol = _symbol,
+                PeriodBars = periodBars
+            };
+        }
+
+        public void Cleanup(Dictionary<string, long> periodTimes)
+        {
+            foreach (var periodBarsBuilder in _periodBuilders)
+            {
+                if (periodTimes.TryGetValue(periodBarsBuilder.Key.ToString(), out var cleanupTime))
+                {
+                    periodBarsBuilder.Value.Cleanup(cleanupTime);
+                }
             }
         }
 
@@ -108,19 +187,29 @@ namespace FeedHistory.Service.Listener.Storage
     public class PeriodBarsBuilder
     {
         private readonly BarPeriod _barPeriod;
-        private readonly List<Bar> _currentBars;
+        private readonly string _symbol;
+        private List<Bar> _currentBars;
 
-        public PeriodBarsBuilder(Bar currentBar, BarPeriod barPeriod)
+        public PeriodBarsBuilder(Bar currentBar, BarPeriod barPeriod, string symbol)
         {
             _barPeriod = barPeriod;
+            _symbol = symbol;
 
             _currentBars = new List<Bar>();
             if (currentBar != null) _currentBars.Add(currentBar);
         }
 
-        public PeriodBarsBuilder(BarPeriod barPeriod) : this(null, barPeriod)
+        public PeriodBarsBuilder(BarPeriod barPeriod, string symbol) : this(null, barPeriod, symbol)
         {
         }
+
+        public void Cleanup(long tillTime)
+        {
+            _currentBars = _currentBars.Where(b => b.Time > tillTime).ToList();
+            Console.WriteLine($"{_symbol}_{_barPeriod}. Cleanup till {tillTime}");
+        }
+
+        public List<Bar> GetSnapshot() => _currentBars.Select(b => b.Copy()).ToList();
 
         public void Advance(Tick tick)
         {
@@ -171,7 +260,7 @@ namespace FeedHistory.Service.Listener.Storage
 
             _currentBars.Add(bar);
 
-            Console.WriteLine($"Period {_barPeriod}. Created new bar {bar}");
+            Console.WriteLine($"{_symbol}_{_barPeriod}. Created new bar {bar}");
         }
 
         private bool IsTickInBar(Bar bar, Tick tick) =>

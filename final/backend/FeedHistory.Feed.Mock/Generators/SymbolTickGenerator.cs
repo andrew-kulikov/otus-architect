@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using FeedHistory.Common;
+using FeedHistory.Common.Extensions;
 
 namespace FeedHistory.Feed.Mock.Generators
 {

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace FeedHistory.Common
+namespace FeedHistory.Common.Extensions
 {
     public static class UtilityExtensions
     {
@@ -37,7 +37,7 @@ namespace FeedHistory.Common
                 BarPeriod.H1 => time.GetHourDate(),
                 BarPeriod.H4 => GetShiftedHourDate(time.GetHourDate(), 4),
                 BarPeriod.D1 => time.GetDayDate(),
-                BarPeriod.W1 => time.GetWeekStart(),
+                BarPeriod.W1 => time.GetDayDate().GetWeekStart(),
                 BarPeriod.Mo1 => time.GetMonthDate(),
                 _ => throw new ArgumentOutOfRangeException(nameof(barPeriod), barPeriod, null)
             };

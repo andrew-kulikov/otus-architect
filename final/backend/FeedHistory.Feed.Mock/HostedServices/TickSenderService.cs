@@ -1,5 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using FeedHistory.Common;
@@ -21,7 +22,8 @@ namespace FeedHistory.Feed.Mock.HostedServices
         {
             _hubContext = hubContext;
             _logger = logger;
-            _tickGenerator = new TickGenerator(new List<string> {"AAPL", "TSLA", "MS", "EURUSD", "BTCUSD"});
+            var symbols = Enumerable.Range(1, 1000).Select(i => $"S{i}").ToList();
+            _tickGenerator = new TickGenerator(symbols);
         }
 
         public Task StartAsync(CancellationToken cancellationToken)

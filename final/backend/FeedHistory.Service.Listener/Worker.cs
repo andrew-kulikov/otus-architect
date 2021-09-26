@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using FeedHistory.Common;
@@ -14,15 +15,21 @@ namespace FeedHistory.Service.Listener
     {
         private readonly ILogger<Worker> _logger;
         private readonly BarsBuilder _barsBuilder;
+        private readonly IBarsRepository _barsRepository;
+        private readonly IDbInitializer _dbInitializer;
 
-        public Worker(ILogger<Worker> logger)
+        public Worker(ILogger<Worker> logger, IBarsRepository barsRepository, IDbInitializer dbInitializer)
         {
             _logger = logger;
-            _barsBuilder = new BarsBuilder();
+            _barsRepository = barsRepository;
+            _dbInitializer = dbInitializer;
+            _barsBuilder = new BarsBuilder(_barsRepository);
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            await _dbInitializer.InitializeAsync();
+
             var connection = new HubConnectionBuilder()
                 .WithUrl("https://localhost:5001/feedHub")
                 .WithAutomaticReconnect()
@@ -31,11 +38,11 @@ namespace FeedHistory.Service.Listener
 
             await connection.StartAsync(stoppingToken);
 
-            await connection.InvokeAsync<List<string>>("Subscribe", new List<string> {"AAPL", "TSLA", "MS", "EURUSD"}, stoppingToken);
+            var symbols = Enumerable.Range(1, 1000).Select(i => $"S{i}").ToList();
+            await connection.InvokeAsync<List<string>>("Subscribe", symbols, stoppingToken);
 
             connection.On<Tick>("tick", tick =>
             {
-                //_logger.LogInformation(tick.ToString());
                 _barsBuilder.Advance(tick);
             });
         }
