@@ -1,11 +1,12 @@
-using FeedHistory.Service.Api.Storage;
+using System.Collections.Generic;
+using FeedHistory.ApiGateway.Controllers;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
+using Microsoft.OpenApi.Models;
 
-namespace FeedHistory.Service.Api
+namespace FeedHistory.ApiGateway
 {
     public class Startup
     {
@@ -19,12 +20,16 @@ namespace FeedHistory.Service.Api
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+            services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo {Title = "FeedHistory.ApiGateway", Version = "v1"}); });
 
-            services.AddScoped<IBarsRepository, BarsRepository>();
+            services.AddHttpClient<HistoryController>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            app.UseSwagger();
+            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "FeedHistory.ApiGateway v1"));
+
             app.UseRouting();
 
             app.UseAuthorization();

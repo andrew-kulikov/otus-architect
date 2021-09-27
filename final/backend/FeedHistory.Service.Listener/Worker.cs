@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using FeedHistory.Common;
 using FeedHistory.Service.Listener.Builders;
+using FeedHistory.Service.Listener.Cache;
 using FeedHistory.Service.Listener.Storage;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Configuration;
@@ -20,19 +21,22 @@ namespace FeedHistory.Service.Listener
         private readonly IBarsRepository _barsRepository;
         private readonly IDbInitializer _dbInitializer;
         private readonly IConfiguration _configuration;
+        private readonly ICacheInitializer _cacheInitializer;
 
-        public Worker(ILogger<Worker> logger, IBarsRepository barsRepository, IDbInitializer dbInitializer, IConfiguration configuration)
+        public Worker(ILogger<Worker> logger, IBarsRepository barsRepository, IDbInitializer dbInitializer, IConfiguration configuration, ICacheInitializer cacheInitializer)
         {
             _logger = logger;
             _barsRepository = barsRepository;
             _dbInitializer = dbInitializer;
             _configuration = configuration;
+            _cacheInitializer = cacheInitializer;
             _barsBuilder = new BarsBuilder(_barsRepository);
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            await _dbInitializer.InitializeAsync();
+            //await _dbInitializer.InitializeAsync();
+            await _cacheInitializer.InitializeAsync();
 
             var connection = new HubConnectionBuilder()
                 .WithUrl(_configuration.GetValue<string>("Feed:Url"))

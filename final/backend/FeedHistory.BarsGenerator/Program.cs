@@ -8,7 +8,7 @@ namespace FeedHistory.BarsGenerator
         {
             var exporter = new MongoExporter();
 
-            for (int i = 0; i < 1000; i++)
+            for (int i = 1001; i < 2001; i++)
             {
                 var pool = new GeneratorPool($"S{i}", exporter);
 

@@ -13,17 +13,19 @@ namespace FeedHistory.BarsGenerator.Exporters
 
         public MongoExporter()
         {
-            _client = new MongoClient("mongodb://localhost:27018");
+            _client = new MongoClient("mongodb://localhost:27019");
         }
 
         public async Task ExportBatchAsync(BarsBatch batch)
         {
+            if (batch.Period == BarPeriod.M1 || batch.Period == BarPeriod.M5 || batch.Period == BarPeriod.M15 || batch.Period == BarPeriod.M30) return;
+
             var database = _client.GetDatabase("bars");
             var collection = database.GetCollection<MongoBar>(batch.Period.ToString());
 
             using (var session = await _client.StartSessionAsync())
             {
-                var docs = batch.Bars.Select(ToDocument);
+                var docs = batch.Bars.Where(b => b.Type == BarType.Bid).Select(ToDocument);
 
                 await collection.InsertManyAsync(docs);
             }

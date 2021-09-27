@@ -1,3 +1,4 @@
+using FeedHistory.Service.Listener.Cache;
 using FeedHistory.Service.Listener.Storage;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -19,6 +20,7 @@ namespace FeedHistory.Service.Listener
 
                     services.AddSingleton<IBarsRepository, BarsRepository>();
                     services.AddSingleton<IDbInitializer, MongoDbInitializer>();
+                    services.AddSingleton<ICacheInitializer, CacheInitializer>();
                 });
     }
 }

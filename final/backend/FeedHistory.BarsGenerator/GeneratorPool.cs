@@ -47,7 +47,7 @@ namespace FeedHistory.BarsGenerator
             {
                 if (ShouldReport(batch.BatchId, generator.Period))
                 {
-                    Console.WriteLine($"Generator {generator.Period} created batch #{batch.BatchId}");
+                    Console.WriteLine($"Generator {_symbol}_{generator.Period} created batch #{batch.BatchId}");
                 }
 
                 await _exporter.ExportBatchAsync(batch);
@@ -55,7 +55,7 @@ namespace FeedHistory.BarsGenerator
 
             sw.Stop();
 
-            Console.WriteLine($"Generator {generator.Period} completed. Total time: {sw.Elapsed}");
+            Console.WriteLine($"Generator {_symbol}_{generator.Period} completed. Total time: {sw.Elapsed}");
             Console.WriteLine();
             Console.WriteLine();
         }

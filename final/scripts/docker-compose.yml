@@ -16,7 +16,22 @@ services:
     ports:
     - 27019:27017
     restart: unless-stopped
-
+  tarantool1:
+    image: "tarantool/tarantool:1.10.9"
+    container_name: 'tarantool1'
+    ports:
+      - "3302:3301"
+    volumes:
+      - tarantool1-data:/var/lib/tarantool
+  tarantool2:
+    image: "tarantool/tarantool:1.10.9"
+    container_name: 'tarantool2'
+    ports:
+      - "3303:3301"
+    volumes:
+      - tarantool2-data:/var/lib/tarantool
 volumes:
   mongodb1-data:
   mongodb2-data:
+  tarantool1-data:
+  tarantool2-data:
