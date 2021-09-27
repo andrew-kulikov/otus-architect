@@ -21,6 +21,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FeedHistory.BarsGenerator",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FeedHistory.ApiGateway", "FeedHistory.ApiGateway\FeedHistory.ApiGateway.csproj", "{E04DFE91-D9E4-4401-AEA1-A99C5951D15E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FeedHistory.Service.Cache", "FeedHistory.Service.Cache\FeedHistory.Service.Cache.csproj", "{674A48CF-0D91-4E97-97DD-6EF195D7096A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -55,6 +57,10 @@ Global
 		{E04DFE91-D9E4-4401-AEA1-A99C5951D15E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E04DFE91-D9E4-4401-AEA1-A99C5951D15E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E04DFE91-D9E4-4401-AEA1-A99C5951D15E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{674A48CF-0D91-4E97-97DD-6EF195D7096A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{674A48CF-0D91-4E97-97DD-6EF195D7096A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{674A48CF-0D91-4E97-97DD-6EF195D7096A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{674A48CF-0D91-4E97-97DD-6EF195D7096A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -64,6 +70,7 @@ Global
 		{67BFA471-76AD-43C0-873E-A8A83C055D40} = {860CCD1E-7CF9-4C5F-80D7-79A4896EA471}
 		{D3A37522-4EF8-494F-BCEF-2A9ECD528870} = {860CCD1E-7CF9-4C5F-80D7-79A4896EA471}
 		{B91AAE77-8916-4D0D-B1F9-45116F7B215E} = {4B861DD9-4E57-446B-AC8D-E0C347048DBB}
+		{674A48CF-0D91-4E97-97DD-6EF195D7096A} = {860CCD1E-7CF9-4C5F-80D7-79A4896EA471}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {49B5035E-B232-4122-A7B2-F3DAB2B07ECC}

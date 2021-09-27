@@ -18,6 +18,8 @@ namespace FeedHistory.Service.Listener
                 {
                     services.AddHostedService<Worker>();
 
+                    services.AddHttpClient<CacheInitializer>();
+
                     services.AddSingleton<IBarsRepository, BarsRepository>();
                     services.AddSingleton<IDbInitializer, MongoDbInitializer>();
                     services.AddSingleton<ICacheInitializer, CacheInitializer>();

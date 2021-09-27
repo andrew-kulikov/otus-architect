@@ -36,7 +36,7 @@ namespace FeedHistory.Service.Listener
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             //await _dbInitializer.InitializeAsync();
-            await _cacheInitializer.InitializeAsync();
+            await _cacheInitializer.InitializeAsync(stoppingToken);
 
             var connection = new HubConnectionBuilder()
                 .WithUrl(_configuration.GetValue<string>("Feed:Url"))

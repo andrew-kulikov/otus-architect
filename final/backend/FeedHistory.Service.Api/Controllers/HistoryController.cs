@@ -1,12 +1,15 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using FeedHistory.Common;
 using FeedHistory.Common.Extensions;
 using FeedHistory.Service.Api.Storage;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 
 namespace FeedHistory.Service.Api.Controllers
 {
@@ -15,10 +18,14 @@ namespace FeedHistory.Service.Api.Controllers
     public class HistoryController : ControllerBase
     {
         private readonly IBarsRepository _barsRepository;
+        private readonly HttpClient _httpClient;
+        private readonly IConfiguration _configuration;
 
-        public HistoryController(IBarsRepository barsRepository)
+        public HistoryController(IBarsRepository barsRepository, IHttpClientFactory httpClientFactory, IConfiguration configuration)
         {
             _barsRepository = barsRepository;
+            _configuration = configuration;
+            _httpClient = httpClientFactory.CreateClient();
         }
 
         [HttpGet("")]
@@ -30,7 +37,11 @@ namespace FeedHistory.Service.Api.Controllers
             [FromQuery] string resolution)
         {
             var period = UtilityExtensions.ResolveBarPeriod(resolution);
-            var bars = await _barsRepository.GetBarsAsync(symbol, period, from, to);
+
+            var cacheUrl = _configuration.GetValue<string>("Cache:Url");
+            var cachedBars = await _httpClient.GetFromJsonAsync<ICollection<Bar>>($"{cacheUrl}/api/cache?symbol={symbol}&period={period}&from={from}&to={to}");
+            
+            var bars = cachedBars != null && cachedBars.Any() ? cachedBars : await _barsRepository.GetBarsAsync(symbol, period, from, to);
 
             BarsResponse response = bars.Any() 
                 ? SuccessBarsResponse.FromBars(bars) 

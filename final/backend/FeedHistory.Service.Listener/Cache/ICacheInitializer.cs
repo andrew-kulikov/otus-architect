@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
+using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 using FeedHistory.Common;
 using FeedHistory.Common.Extensions;
@@ -14,61 +17,51 @@ namespace FeedHistory.Service.Listener.Cache
 {
     public interface ICacheInitializer
     {
-        Task InitializeAsync();
+        Task InitializeAsync(CancellationToken cancellationToken);
     }
 
     public class CacheInitializer : ICacheInitializer, IDisposable
     {
-        private Box _tarantoolClient;
-        private readonly IConfiguration _configuration;
+        private readonly HttpClient _httpClient;
         private readonly IBarsRepository _barsRepository;
 
-        public CacheInitializer(IConfiguration configuration, IBarsRepository barsRepository)
+        public CacheInitializer(IHttpClientFactory httpClientFactory, IBarsRepository barsRepository)
         {
-            _configuration = configuration;
+            _httpClient = httpClientFactory.CreateClient();
             _barsRepository = barsRepository;
         }
 
-        public async Task InitializeAsync()
+        public async Task InitializeAsync(CancellationToken cancellationToken)
         {
-            _tarantoolClient = await Box.Connect("localhost", 3302);
-
-            await CreateSchemaAsync();
-
-            foreach (var symbolId in Enumerable.Range(1, 1000))
+            foreach (var symbolId in Enumerable.Range(1000, 1000))
             {
                 var symbolName = $"S{symbolId}";
 
                 foreach (var barPeriod in Enum.GetValues<BarPeriod>())
                 {
+                    // TODO: Remove
+                    if (barPeriod == BarPeriod.M1 || barPeriod == BarPeriod.M5 || barPeriod == BarPeriod.M15 || barPeriod == BarPeriod.M30) continue;
+                    
                     var to = DateTime.UtcNow;
                     var from = GetPeriodStartInterval(barPeriod, to);
 
                     var bars = await _barsRepository.GetBarsAsync(symbolName, barPeriod, from.ToTimestampMilliseconds(), to.ToTimestampMilliseconds());
 
-                    await SaveToTarantoolAsync(bars, symbolName, barPeriod);
+                    if (bars.Any())
+                    {
+                        await SaveAsync(bars, symbolName, barPeriod, cancellationToken);
 
-                    Console.WriteLine($"Saved symbol {symbolName}_{barPeriod} to cache");
+                        Console.WriteLine($"Saved symbol {symbolName}_{barPeriod} to cache");
+                    }
                 }
             }
         }
 
-        private async Task SaveToTarantoolAsync(ICollection<Bar> bars, string symbol, BarPeriod period)
+        private async Task SaveAsync(ICollection<Bar> bars, string symbol, BarPeriod period, CancellationToken cancellationToken)
         {
-            var index = _tarantoolClient.Schema["bars"]["primary"];
-            foreach (var bar in bars)
-            {
-                try
-                {
-                    await index.Insert(bar.ToTuple(period, symbol));
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e);
-                   // throw;
-                }
-               
-            }
+            var serializedBars = JsonSerializer.Serialize(bars);
+            var content = new StringContent(serializedBars, Encoding.UTF8, "application/json");
+            await _httpClient.PostAsync($"http://localhost:7012/api/cache?symbol={symbol}&period={period}", content, cancellationToken);
         }
 
         private DateTime GetPeriodStartInterval(BarPeriod period, DateTime to) =>
@@ -85,19 +78,6 @@ namespace FeedHistory.Service.Listener.Cache
                 BarPeriod.Mo1 => to.AddYears(-50),
                 _ => throw new ArgumentOutOfRangeException(nameof(period), period, null)
             };
-
-        public async Task CreateSchemaAsync()
-        {
-            await _tarantoolClient.Eval<string>($"box.schema.create_space('bars', {{if_not_exists = true}})");
-
-            // symbol, period, time
-            var primaryParts = "{{field = 1, type = 'string'}, {field = 2, type = 'unsigned'}, {field = 3, type = 'unsigned'}}";
-
-            await _tarantoolClient.Eval<string>(
-                $"box.space.bars:create_index('primary', {{unique = true, if_not_exists = true, parts = {primaryParts}}})");
-
-            await _tarantoolClient.Schema.Reload();
-        }
 
         public void Dispose()
         {
