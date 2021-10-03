@@ -25,3 +25,4 @@ Implementation notes:
 4. [Task 4](docs/task4/README.md) - MySQL replication.
 5. [Task 5](docs/task5/README.md) - In-Memory DBMS (Tarantool).
 6. [Task 6](docs/task6/README.md) - Scalable messages system (sharding).
+6. [Task 7](docs/task7/README.md) - Realtime news feed update.

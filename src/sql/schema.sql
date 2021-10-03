@@ -10,8 +10,11 @@ CREATE TABLE IF NOT EXISTS `User` (
     `RegisteredAt` DATETIME NOT NULL, 
     CONSTRAINT `PK_User` PRIMARY KEY (`Id`)) ENGINE = INNODB;
 
-alter table User add index idx_username (Username);
-
+set @index_count := (select count(*) from information_schema.statistics where table_name = 'User' and index_name = 'idx_username' and table_schema = database());
+set @create_index_sql := if( @index_count > 0, 'select ''Index exists.''', 'alter table User add index idx_username (Username);');
+prepare stmt FROM @create_index_sql;
+execute stmt;
+deallocate prepare stmt;
     
 CREATE TABLE IF NOT EXISTS  `UserProfile` (
     `UserId` BIGINT NOT NULL, 
@@ -25,7 +28,11 @@ CREATE TABLE IF NOT EXISTS  `UserProfile` (
         FOREIGN KEY (`UserId`) 
         REFERENCES `User` (`Id`)) ENGINE = INNODB;
 
-alter table UserProfile add index idx_first_last_name (LastName(5), FirstName(7));
+set @index_count := (select count(*) from information_schema.statistics where table_name = 'UserProfile' and index_name = 'idx_first_last_name' and table_schema = database());
+set @create_index_sql := if( @index_count > 0, 'select ''Index exists.''', 'alter table UserProfile add index idx_first_last_name (LastName(5), FirstName(7));');
+prepare stmt FROM @create_index_sql;
+execute stmt;
+deallocate prepare stmt;
 
 
 CREATE TABLE IF NOT EXISTS Friendship ( 
@@ -78,5 +85,9 @@ CREATE TABLE IF NOT EXISTS  `ChatMessage` (
     `Updated` DATETIME NOT NULL,
     `IsDeleted` BOOLEAN NOT NULL,
     CONSTRAINT `PK_Message` PRIMARY KEY (`Id`)) ENGINE = INNODB;
-    
-alter table ChatMessage add index idx_chatId (ChatId);
+
+set @index_count := (select count(*) from information_schema.statistics where table_name = 'ChatMessage' and index_name = 'idx_chatId' and table_schema = database());
+set @create_index_sql := if( @index_count > 0, 'select ''Index exists.''', 'alter table ChatMessage add index idx_chatId (ChatId);');
+prepare stmt FROM @create_index_sql;
+execute stmt;
+deallocate prepare stmt;

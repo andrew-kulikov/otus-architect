@@ -58,16 +58,16 @@ services:
       - "6033:6033"
       # Mysql Admin Port
       - "6032:6032"
-  # rabbitmq:
-  #   image: rabbitmq:3-management-alpine
-  #   container_name: 'rabbitmq'
-  #   ports:
-  #       - 5672:5672
-  #       - 15672:15672
-  #       - 5040:5040
-  #   volumes:
-  #       - rabbitmq-data:/var/lib/rabbitmq
-  #       - rabbitmq-log:/var/log/rabbitmq
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: 'rabbitmq'
+    ports:
+        - 5672:5672
+        - 15672:15672
+        - 5040:5040
+    volumes:
+        - rabbitmq-data:/var/lib/rabbitmq
+        - rabbitmq-log:/var/log/rabbitmq
   redis:
     image: "redis:alpine"
     container_name: 'redis'
