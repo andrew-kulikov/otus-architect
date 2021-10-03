@@ -38,6 +38,7 @@ namespace SocialNetwork.Web.Extensions
             {
                 massTransitOptions.AddConsumer<PostCreatedConsumer>();
                 massTransitOptions.AddConsumer<FeedUpdateConsumer>();
+                massTransitOptions.AddConsumer<PushFeedUpdateConsumer>();
 
                 massTransitOptions.UsingRabbitMq((provider, rabbitMqOptions) =>
                 {

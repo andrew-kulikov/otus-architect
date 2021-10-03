@@ -5,12 +5,73 @@
     ViewBag.Title = "News";
 }
 
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/3.1.7/signalr.min.js"></script>
+
+    <script>
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/newsFeedHub")
+            .configureLogging(signalR.LogLevel.Information)
+            .build();
+
+        async function start() {
+            try {
+                await connection.start();
+                console.log("SignalR Connected.");
+            } catch (err) {
+                console.log(err);
+                setTimeout(start, 5000);
+            }
+        };
+
+        connection.onclose(async () => {
+            await start();
+        });
+
+        connection.on("addPost",
+            post => {
+                console.log(`received post ${JSON.stringify(post)}`);
+
+                const postElement = document.createElement("div");
+                postElement.classList.add("card");
+                postElement.classList.add("feed-post");
+
+                const headerElement = document.createElement("div");
+                headerElement.classList.add("card-header");
+
+                const headerTitleElement = document.createElement("h5");
+                headerTitleElement.innerText = post.userProfile.firstName + ' ' + post.userProfile.lastName;
+
+                const headerDateElement = document.createElement("span");
+                headerDateElement.classList.add("feed-post-date");
+                headerDateElement.innerText = post.created.split("T")[0];
+
+                headerElement.appendChild(headerTitleElement);
+                headerElement.appendChild(headerDateElement);
+
+                const bodyElement = document.createElement("div");
+                bodyElement.classList.add("card-body");
+
+                bodyElement.innerText = post.text;
+
+                postElement.appendChild(headerElement);
+                postElement.appendChild(bodyElement);
+
+                const postsElement = document.getElementById("feed-posts-container");
+
+                postsElement.appendChild(postElement);
+            });
+
+        // Start the connection.
+        start();
+    </script>
+}
 
 <div>
     Create new post <a asp-controller="NewsFeed" asp-action="CreatePost">here</a>
 </div>
 
-<div class="feed-posts-container">
+<div class="feed-posts-container" id="feed-posts-container">
     @foreach (var post in Model)
     {
         <div class="card feed-post">

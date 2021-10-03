@@ -16,12 +16,14 @@ using SocialNetwork.Core.Utils;
 using SocialNetwork.Infrastructure.Caching;
 using SocialNetwork.Infrastructure.Configuration;
 using SocialNetwork.Infrastructure.Consumers;
+using SocialNetwork.Infrastructure.HubBackplane;
 using SocialNetwork.Infrastructure.MySQL;
 using SocialNetwork.Infrastructure.Repositories;
 using SocialNetwork.Infrastructure.Services;
 using SocialNetwork.Infrastructure.Tarantool;
 using SocialNetwork.Web.Authentication;
 using SocialNetwork.Web.Extensions;
+using SocialNetwork.Web.Hubs;
 using StackExchange.Redis.Extensions.Core.Configuration;
 using StackExchange.Redis.Extensions.MsgPack;
 
@@ -39,6 +41,8 @@ namespace SocialNetwork.Web
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddRabbitMq(Configuration);
+
+            services.AddSignalR();
 
             services.AddStackExchangeRedisExtensions<MsgPackObjectSerializer>(new RedisConfiguration
             {
@@ -94,6 +98,8 @@ namespace SocialNetwork.Web
 
             services.AddScoped(typeof(IListCache<>), typeof(RedisListCache<>));
 
+            services.AddSingleton<INewsHubBackplane, RedisNewsHubBackplane>();
+
             RedisContext.DefaultSerializer = new MsgPackSerializer();
         }
 
@@ -116,6 +122,8 @@ namespace SocialNetwork.Web
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+
+                endpoints.MapHub<NewsFeedHub>("newsFeedHub");
 
                 endpoints.MapDefaultControllerRoute();
             });
